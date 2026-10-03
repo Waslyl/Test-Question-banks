@@ -1,0 +1,26 @@
+.qcm-main { max-width: 1000px; margin: 0 auto; padding: 20px 20px 60px; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 18px; }
+.toc a {
+  font-size: 13px; text-decoration: none; color: var(--navy);
+  background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px;
+}
+.toc a:hover { border-color: var(--navy); }
+.toc a .n { color: var(--muted); margin-left: 4px; }
+
+.section { margin-bottom: 10px; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.section > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px;
+  padding: 12px 16px; font-weight: 700; color: var(--navy); scroll-margin-top: 70px;
+}
+.section > summary::-webkit-details-marker { display: none; }
+.section > summary::before { content: "▸"; color: var(--muted); }
+.section[open] > summary::before { content: "▾"; }
+.section > summary .count { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--muted); }
+.section .topic-title { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+.section .list { padding: 0 12px 14px; }
+.section.hl-only > summary .hl { font-size: 10px; font-weight: 700; color: #8a5a00; background: #fdf0d8; border-radius: 4px; padding: 0 4px; }
+
+@media (max-width: 860px) {
+  .qcm-main { padding: 16px 16px 50px; }
+  .section .list { padding: 0 6px 10px; }
+}
