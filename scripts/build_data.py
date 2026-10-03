@@ -137,6 +137,24 @@ def main(merged_path, split_path):
     def part_key(item):
         return item[0]["sub"]
 
+    # Les parties sans numéro de question (ex. 19M.2.HL.TZ1.A.II) : on enlève celles déjà
+    # présentes ailleurs, puis on regroupe celles d'un même examen portant sur les mêmes sous-thèmes.
+    numbered_text = "".join(
+        norm_text(r["Question"]) for items in groups.values() for (i, r) in items if i["num"] is not None
+    )
+    orphans = OrderedDict()
+    for parent in [p for p, items in groups.items() if items[0][0]["num"] is None]:
+        info, r = groups.pop(parent)[0]
+        t = norm_text(r["Question"])
+        chunk = t[len(t) // 4: len(t) // 4 + 50] if len(t) > 60 else t
+        if chunk and (chunk in numbered_text or chunk in merged_text):
+            continue
+        key = (info["base"], tuple(tags(r)[1]))
+        orphans.setdefault(key, []).append((info, r))
+    for (base, _), items in orphans.items():
+        labels = "-".join(sorted(i["sub"] for i, _ in items))
+        groups[f"{base}.?{labels}"] = items
+
     for parent, items in groups.items():
         items.sort(key=part_key)
         info0 = parse_id(parent)
@@ -154,6 +172,7 @@ def main(merged_path, split_path):
             id=parent, session=info0["session"], level=info0["level"], tz=info0["tz"],
             num=info0["num"], topics=sorted(topics), subtopics=sorted(subs),
             marks=sum(marks_of(p["q"]) for p in parts), q="", ms="", er="", parts=parts,
+            incomplete=info0["num"] is None,
         ))
 
     def sort_key(q):

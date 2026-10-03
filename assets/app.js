@@ -158,6 +158,7 @@
     return '<div class="card-head"><span class="qid">' + esc(q.id) + '</span>' +
       '<span class="chip">' + sessionLabel(q.session) + (q.tz !== "TZ0" ? " · " + q.tz : "") + "</span>" +
       '<span class="chip lvl-' + q.level + '">' + q.level + "</span>" + chips +
+      (q.incomplete ? '<span class="chip warn" title="Le numéro de cette question manque dans les données d\'origine">N° de question inconnu</span>' : "") +
       '<span class="marks">' + marks + "</span></div>";
   }
 
