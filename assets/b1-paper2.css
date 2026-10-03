@@ -1,0 +1,17 @@
+.part-context { padding: 4px 0 8px; }
+.part-context + .p2-part, .p2-part + .part-context { margin-top: 10px; }
+.p2-part { padding: 10px 12px; margin: 0 -12px; border-radius: 8px; }
+.p2-part + .p2-part { margin-top: 6px; }
+.p2-part.is-b1 { background: #f7f5ff; box-shadow: inset 3px 0 #7b68d6; }
+.p2-part .part-head { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.p2-part .part-label { font-size: 15px; }
+.p2-part .b1-badge { font-size: 11px; font-weight: 700; color: #4b3a99; background: #edeaf9; border-radius: 4px; padding: 1px 6px; }
+.p2-part .other-subs { font-size: 12px; color: var(--muted); }
+.p2-part .mini { margin-left: auto; white-space: nowrap; }
+.p2-part .panel { margin: 8px 0 4px; }
+/* le libellé d'origine est remplacé par celui de l'en-tête de partie */
+.p2-part > .qhtml .question_part_label, .p2-part > .qhtml .qn_code_number { display: none; }
+.p2-part .panel .question_part_label { display: none; }
+.p2-part > .qhtml .question { border-top: 0 !important; margin-top: 0 !important; padding-top: 0 !important; }
+.b1-list { font-size: 13px; color: #4b3a99; font-weight: 600; }
+.only-b1 .p2-part:not(.is-b1) { display: none; }

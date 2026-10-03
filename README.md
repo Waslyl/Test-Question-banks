@@ -31,3 +31,14 @@ python3 scripts/build_data.py chemin/Physics_2025_QB_merged.json chemin/Physics_
 ```
 
 Le script produit `data/paper1a.js` et `data/paper2.js`. Seules les questions des Papers 1A et 2 sont gardées : les Papers 1B et 3 sont exclus.
+
+## Pages dédiées au sous-thème B.1
+
+- `b1-paper1a.html` : les 44 questions Paper 1A de B.1
+- `b1-paper2.html` : les questions Paper 2 de B.1, complètes, avec toutes leurs parties. Les parties B.1 sont mises en évidence et chaque partie a son propre markscheme.
+
+Les données de `b1-paper2.html` se régénèrent à partir de la page B.1 de la Questionbank, enregistrée en HTML :
+
+```bash
+python3 scripts/build_b1_paper2.py merged.json split.json page_B1.html
+```
