@@ -36,8 +36,8 @@ Le script produit `data/paper1a.js` et `data/paper2.js`. Seules les questions de
 
 | Sous-thème | Paper 1A | Paper 2 |
 |---|---|---|
-| B.1 Thermal energy transfers | `b1-paper1a.html` (44 QCM) | `b1-paper2.html` (20 questions) |
-| B.3 Gas laws | `b3-paper1a.html` (33 QCM) | `b3-paper2.html` (10 questions) |
+| B.1 Thermal energy transfers | `b1-paper1a.html` (37 QCM vérifiés sur 44 listés) | `b1-paper2.html` (20 questions) |
+| B.3 Gas laws | `b3-paper1a.html` (32 QCM) | `b3-paper2.html` (10 questions) |
 
 Dans les pages Paper 2, chaque question est complète, avec toutes ses parties. Les parties du sous-thème sont mises en évidence et chaque partie a son propre markscheme.
 
@@ -48,3 +48,13 @@ python3 scripts/build_subtopic.py merged.json split.json page.html B.3
 ```
 
 Le script produit `data/b3.js`. Ensuite, copie `b3-paper1a.html` et `b3-paper2.html` en remplaçant `b3` et le titre.
+
+**Attention aux identifiants.** Dans les exports généraux (merged et split), un même identifiant IB désigne parfois une autre question que celle du sous-thème. `build_subtopic.py` compare donc chaque question avec le début de texte affiché par la page HTML : il écarte les QCM qui ne correspondent pas, et quand une question Paper 2 en mélange deux, il ne garde que les parties vérifiées.
+
+Quand un export dédié au sous-thème existe (ex. `B3_Gas_laws_questions.json`), c'est la meilleure source :
+
+```bash
+python3 scripts/import_subtopic_json.py B3_Gas_laws_questions.json merged.json split.json
+```
+
+Les QCM et la liste des parties viennent de l'export dédié. Les fichiers merged et split servent seulement à afficher les autres parties de chaque question et son texte de contexte, et seulement après vérification du texte de chaque partie.

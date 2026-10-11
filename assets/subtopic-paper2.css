@@ -15,3 +15,6 @@
 .p2-part > .qhtml .question { border-top: 0 !important; margin-top: 0 !important; padding-top: 0 !important; }
 .hit-list { font-size: 13px; color: #4b3a99; font-weight: 600; }
 .only-hit .p2-part:not(.is-hit) { display: none; }
+.q-note, .missing-note { font-size: 13px; color: #8a5a00; background: #fdf3e1; border-radius: 6px; padding: 6px 10px; }
+.q-note { margin: 12px 18px 0; }
+.missing-note { margin-top: 6px; }

@@ -45,10 +45,11 @@
       (p.label ? '<span class="part-label">' + esc(p.label) + "</span>" : "") +
       (hit ? '<span class="hit-badge">' + esc(CODE) + "</span>" : "") +
       (!hit && others.length ? '<span class="other-subs">' + others.join(", ") + "</span>" : "") +
-      '<span class="mini"><button class="toggle' + (state.allMs ? " on" : "") + '" data-panel="ms">Markscheme</button>' +
+      '<span class="mini">' + (p.ms ? '<button class="toggle' + (state.allMs ? " on" : "") + '" data-panel="ms">Markscheme</button>' : "") +
       (p.er ? ' <button class="toggle" data-panel="er">Rapport</button>' : "") + "</span></div>" +
       '<div class="qhtml">' + p.q + "</div>" +
-      panel("ms", p.ms, state.allMs) + (p.er ? panel("er", p.er, false) : "") + "</div>";
+      (p.missing ? '<div class="missing-note">Énoncé tel qu\'affiché dans la liste de la Questionbank : le texte complet et le markscheme de cette partie manquent dans les fichiers.</div>' : "") +
+      (p.ms ? panel("ms", p.ms, state.allMs) : "") + (p.er ? panel("er", p.er, false) : "") + "</div>";
   }
 
   function card(q) {
@@ -58,7 +59,8 @@
       sessionLabel(q.session) + (q.tz !== "TZ0" ? " · " + q.tz : "") + '</span><span class="chip lvl-' + q.level + '">' +
       q.level + '</span><span class="hit-list">Parties ' + esc(CODE) + " : " + q.hits.map(labelOf).join(", ") +
       '</span><span class="marks">[' + q.marks + " points]</span></div>";
-    return '<article class="card">' + head + '<div class="card-body">' +
+    return '<article class="card">' + head + (q.note ? '<div class="q-note">' + esc(q.note) + "</div>" : "") +
+      '<div class="card-body">' +
       q.parts.map(function (p) { return partBlock(q, p); }).join("") + "</div></article>";
   }
 

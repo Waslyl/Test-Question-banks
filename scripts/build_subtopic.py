@@ -13,6 +13,7 @@ Usage :
   apporte, pour les anciens sujets, le texte de contexte placé avant certaines parties. Aucune des
   deux sources n'est complète seule.
 """
+import html as htmlmod
 import json
 import os
 import re
@@ -149,6 +150,51 @@ def find_merged(merged, parent, split_parts):
     return None
 
 
+def build_parts(parent, merged, split):
+    """Toutes les parties d'une question Paper 2, fusionnées depuis les fichiers merged et split."""
+    info = parse_id(parent)
+    new_format = info["session"] in ("23M", "SPM", "EXE")
+    split_parts = split_pieces(split, parent)
+    source = None if new_format else find_merged(merged, parent, split_parts)
+    merged_parts = merged_pieces(source) if source else {}
+    if merged_parts:
+        # le fichier merged fait foi pour les lettres qu'il contient ; le split ne complète
+        # que les parties absentes (ex. 21N.2.SL.TZ0.5 : (c) et (d) manquent dans merged)
+        letters = {k[:1] for k in merged_parts}
+        split_parts = {k: v for k, v in split_parts.items() if k[:1] not in letters}
+
+    parts, seen = [], {}
+    keys = sorted(set(split_parts) | set(merged_parts), key=sort_key)
+    # une même partie peut figurer deux fois sous deux libellés (ex. « c » et « c(i) ») :
+    # on garde le libellé le plus précis
+    for key in sorted(keys, key=len, reverse=True):
+        text = norm_text((merged_parts.get(key) or split_parts.get(key))["q"])
+        seen.setdefault(text, key)
+    keys = [k for k in keys if seen[norm_text((merged_parts.get(k) or split_parts.get(k))["q"])] == k]
+    for key in keys:
+        sp, mp = split_parts.get(key, {}), merged_parts.get(key, {})
+        parts.append(OrderedDict(
+            label=display(key), key=key, subtopics=sp.get("subtopics", []),
+            pre=mp.get("pre", ""), q=mp.get("q") or sp.get("q", ""),
+            ms=sp.get("ms") or mp.get("ms", ""), er=sp.get("er") or mp.get("er", ""),
+        ))
+    return parts
+
+
+def text_key(h):
+    return re.sub(r"\W", "", htmlmod.unescape(re.sub(r"<[^>]+>", " ", h))).lower()
+
+
+def preview_key(h):
+    """Début du texte affiché dans la liste (tronqué par « ... »), réduit à ses 30 premiers caractères."""
+    return text_key(re.sub(r"\.\.\.\s*$", "", h.strip()))[:30]
+
+
+def load_js(path):
+    s = open(path, encoding="utf-8").read()
+    return json.loads(s[s.index("=") + 1:].strip().rstrip(";"))
+
+
 def section(html, code):
     """Partie de la page qui concerne le sous-thème, et son titre."""
     heads = [(m.start(), re.sub(r"<[^>]+>|\s+", " ", m.group(1)).strip())
@@ -167,10 +213,34 @@ def main(merged_path, split_path, html_path, code):
     split = json.load(open(split_path, encoding="utf-8"))
     html, title = section(open(html_path, encoding="utf-8", errors="ignore").read(), code)
 
-    p1a = []
-    for qid in re.findall(r"<li>\s*((?:\d\d[MN]|SPM|EXE)\.1A\.(?:SL|HL)\.TZ\d\.\d+):", html):
-        if qid not in p1a:
+    raw_previews = OrderedDict()
+    for ref, txt in re.findall(r"<li>\s*((?:\d\d[MN]|SPM|EXE)\.2\.(?:SL|HL)\.TZ\d\.[\w().]+):\s*<a[^>]*>(.*?)</a>",
+                               html, re.S):
+        raw_previews.setdefault(ref, txt)
+    # Début du texte de chaque question tel qu'affiché par la page : sert à vérifier que
+    # l'identifiant désigne bien la même question dans les exports (ce n'est pas toujours le cas)
+    previews = OrderedDict()
+    for ref, txt in re.findall(r"<li>\s*((?:\d\d[MN]|SPM|EXE)\.[0-9A-Z]+\.(?:SL|HL)\.TZ\d\.[\w().]+):\s*<a[^>]*>(.*?)</a>",
+                               html, re.S):
+        previews.setdefault(ref, set()).add(preview_key(txt))
+
+    p1a, rejected, partial = [], [], []
+    questions_1a = {q["id"]: q for q in load_js(os.path.join(ROOT, "data", "paper1a.js"))}
+    for qid, keys in previews.items():
+        if ".1A." not in qid:
+            continue
+        text = text_key(questions_1a[qid]["q"]) if qid in questions_1a else ""
+        if all(k in text for k in keys):
             p1a.append(qid)
+        elif any(k in text for k in keys):
+            p1a.append(qid)
+            partial.append(qid)
+        else:
+            rejected.append(qid)
+    if partial:
+        print(f"  QCM gardés, mais une autre variante du même numéro manque dans l'export : {partial}")
+    if rejected:
+        print(f"  QCM écartés (l'export contient une autre question sous ce numéro) : {rejected}")
 
     # Questions Paper 2 et parties rattachées au sous-thème (identifiants numérotés uniquement)
     wanted = OrderedDict()
@@ -182,40 +252,39 @@ def main(merged_path, split_path, html_path, code):
     out = []
     for parent, hit_parts in wanted.items():
         info = parse_id(parent)
-        new_format = info["session"] in ("23M", "SPM", "EXE")
-        split_parts = split_pieces(split, parent)
-        source = None if new_format else find_merged(merged, parent, split_parts)
-        merged_parts = merged_pieces(source) if source else {}
-        if merged_parts:
-            # le fichier merged fait foi pour les lettres qu'il contient ; le split ne complète
-            # que les parties absentes (ex. 21N.2.SL.TZ0.5 : (c) et (d) manquent dans merged)
-            letters = {k[:1] for k in merged_parts}
-            split_parts = {k: v for k, v in split_parts.items() if k[:1] not in letters}
-
-        parts, seen = [], {}
-        keys = sorted(set(split_parts) | set(merged_parts), key=sort_key)
-        # une même partie peut figurer deux fois sous deux libellés (ex. « c » et « c(i) ») :
-        # on garde le libellé le plus précis
-        for key in sorted(keys, key=len, reverse=True):
-            text = norm_text((merged_parts.get(key) or split_parts.get(key))["q"])
-            seen.setdefault(text, key)
-        keys = [k for k in keys if seen[norm_text((merged_parts.get(k) or split_parts.get(k))["q"])] == k]
-        for key in keys:
-            sp, mp = split_parts.get(key, {}), merged_parts.get(key, {})
-            parts.append(OrderedDict(
-                label=display(key), key=key, subtopics=sp.get("subtopics", []),
-                pre=mp.get("pre", ""), q=mp.get("q") or sp.get("q", ""),
-                ms=sp.get("ms") or mp.get("ms", ""), er=sp.get("er") or mp.get("er", ""),
-            ))
+        parts = build_parts(parent, merged, split)
         present = [p["key"] for p in parts]
         dropped = sorted(k for k in hit_parts if k not in present)
         if dropped:
             # ex. 19M.2.SL.TZ2.2 : la page liste (c)(i) et (c)(ii), doublons de (d)(i) et (d)(ii)
             print(f"  {parent} : parties listées mais absentes des données, ignorées : {dropped}")
         hit_parts = [k for k in hit_parts if k in present]
+        # vérifie, partie par partie, que le texte correspond à celui de la page
+        by_key = {p["key"]: p for p in parts}
+        wrong = [k for k in hit_parts if not any(
+            all(pk in text_key(by_key[k]["q"]) for pk in keys)
+            for ref, keys in previews.items() if ref.startswith(parent) and norm(ref[len(parent):]) == k)]
+        note = ""
+        if wrong:
+            # l'export range sous ce numéro des parties d'une autre question (ex. 23M.2.SL.TZ1.2 :
+            # chocolat + pendule) : on ne garde que les parties vérifiées, et pour les autres
+            # l'énoncé tel que la page l'affiche
+            print(f"  {parent} : texte différent de la page pour {wrong} -> parties vérifiées seules")
+            kept = []
+            for k in hit_parts:
+                if k not in wrong:
+                    kept.append(by_key[k])
+                    continue
+                ref = next(r for r in raw_previews if r.startswith(parent) and norm(r[len(parent):]) == k)
+                statement = re.sub(r"\s+", " ", raw_previews[ref]).strip()
+                kept.append(OrderedDict(label=display(k), key=k, subtopics=[code], pre="",
+                                        q=f"<p>{statement}</p>", ms="", er="", missing=True))
+            parts = sorted(kept, key=lambda p: sort_key(p["key"]))
+            note = ("Les fichiers de départ mélangent cette question avec une autre : seules les parties "
+                    f"{code} vérifiées sont affichées.")
         out.append(OrderedDict(id=parent, session=info["session"], level=info["level"], tz=info["tz"],
                                num=info["num"], hits=sorted(hit_parts, key=sort_key),
-                               marks=sum(marks_of(p["q"]) for p in parts), parts=parts))
+                               marks=sum(marks_of(p["q"]) for p in parts), parts=parts, note=note))
 
     # même question listée sous deux numéros dans le même sujet (ex. 23M.2.SL.TZ2.12 et .17) :
     # on n'en garde qu'une, en indiquant l'autre numéro

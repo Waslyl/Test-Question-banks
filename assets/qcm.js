@@ -7,12 +7,14 @@
   if (PAGE) {
     var all = {};
     DATA.forEach(function (q) { all[q.id] = q; });
-    DATA = PAGE.ids.map(function (id) { return all[id]; }).filter(Boolean);
+    DATA = PAGE.questions || PAGE.ids.map(function (id) { return all[id]; }).filter(Boolean);
   }
   var state = { level: "", session: "", search: "", showAll: false };
+  // un même identifiant IB peut désigner deux QCM différents : on stocke les réponses par clé unique
+  function key(q) { return q.key || q.id; }
   var answers = load();
   var byId = {};
-  DATA.forEach(function (q) { byId[q.id] = q; });
+  DATA.forEach(function (q) { byId[key(q)] = q; });
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -69,7 +71,7 @@
   }
 
   function card(q) {
-    var prev = answers[q.id];
+    var prev = answers[key(q)];
     var reveal = prev || state.showAll;
     var opts = ["A", "B", "C", "D"].map(function (l) {
       var cls = "opt";
@@ -88,7 +90,8 @@
     if (q.er) actions += '<button class="toggle" data-panel="er">Rapport des examinateurs</button>';
     if (prev) actions += '<button class="toggle" data-retry="1">Réessayer</button>';
     var chips = q.subtopics.map(function (s) { return '<span class="chip sub">' + s + "</span>"; }).join("");
-    return '<article class="card" data-id="' + esc(q.id) + '"><div class="card-head"><span class="qid">' + esc(q.id) +
+    return '<article class="card" data-id="' + esc(key(q)) + '"><div class="card-head"><span class="qid">' + esc(q.id) +
+      (q.tag ? '</span><span class="chip">' + esc(q.tag) : "") +
       '</span><span class="chip">' + sessionLabel(q.session) + (q.tz !== "TZ0" ? " · " + q.tz : "") +
       '</span><span class="chip lvl-' + q.level + '">' + q.level + "</span>" + chips + '<span class="marks">[1]</span></div>' +
       '<div class="card-body qhtml">' + q.q + '</div><div class="mcq">' + opts + verdict + "</div>" +
@@ -112,7 +115,7 @@
       var items = s.items.filter(visible);
       if (!items.length) return;
       total += items.length;
-      items.forEach(function (q) { if (answers[q.id]) { done++; if (answers[q.id] === q.answer) ok++; } });
+      items.forEach(function (q) { if (answers[key(q)]) { done++; if (answers[key(q)] === q.answer) ok++; } });
       var id = "s-" + s.code.replace(".", "-");
       toc += '<a href="#' + id + '">' + s.code + '<span class="n">' + items.length + "</span></a>";
       html += '<details class="section' + (s.hl ? " hl-only" : "") + '" id="' + id + '" data-code="' + s.code + '"' +
@@ -146,13 +149,13 @@
     var q = byId[c.getAttribute("data-id")];
     var opt = e.target.closest("button[data-opt]");
     if (opt && !opt.disabled) {
-      answers[q.id] = opt.getAttribute("data-opt");
+      answers[key(q)] = opt.getAttribute("data-opt");
       save();
       c.outerHTML = card(q);
       return;
     }
     if (e.target.closest("button[data-retry]")) {
-      delete answers[q.id];
+      delete answers[key(q)];
       save();
       c.outerHTML = card(q);
       return;
