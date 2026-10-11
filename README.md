@@ -32,13 +32,19 @@ python3 scripts/build_data.py chemin/Physics_2025_QB_merged.json chemin/Physics_
 
 Le script produit `data/paper1a.js` et `data/paper2.js`. Seules les questions des Papers 1A et 2 sont gardées : les Papers 1B et 3 sont exclus.
 
-## Pages dédiées au sous-thème B.1
+## Pages par sous-thème
 
-- `b1-paper1a.html` : les 44 questions Paper 1A de B.1
-- `b1-paper2.html` : les questions Paper 2 de B.1, complètes, avec toutes leurs parties. Les parties B.1 sont mises en évidence et chaque partie a son propre markscheme.
+| Sous-thème | Paper 1A | Paper 2 |
+|---|---|---|
+| B.1 Thermal energy transfers | `b1-paper1a.html` (44 QCM) | `b1-paper2.html` (20 questions) |
+| B.3 Gas laws | `b3-paper1a.html` (33 QCM) | `b3-paper2.html` (10 questions) |
 
-Les données de `b1-paper2.html` se régénèrent à partir de la page B.1 de la Questionbank, enregistrée en HTML :
+Dans les pages Paper 2, chaque question est complète, avec toutes ses parties. Les parties du sous-thème sont mises en évidence et chaque partie a son propre markscheme.
+
+Pour ajouter un sous-thème, enregistre sa page de la Questionbank en HTML (ou celle du thème entier), puis lance :
 
 ```bash
-python3 scripts/build_b1_paper2.py merged.json split.json page_B1.html
+python3 scripts/build_subtopic.py merged.json split.json page.html B.3
 ```
+
+Le script produit `data/b3.js`. Ensuite, copie `b3-paper1a.html` et `b3-paper2.html` en remplaçant `b3` et le titre.

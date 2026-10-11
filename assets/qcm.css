@@ -24,3 +24,10 @@
   .qcm-main { padding: 16px 16px 50px; }
   .section .list { padding: 0 6px 10px; }
 }
+
+.paper-tabs a {
+  color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,.3);
+  padding: 7px 14px; border-radius: 999px; font-weight: 600; white-space: nowrap;
+}
+.paper-tabs a.active { background: #fff; color: var(--navy); border-color: #fff; }
+@media (max-width: 860px) { .paper-tabs a { padding: 6px 10px; font-size: 13px; } }

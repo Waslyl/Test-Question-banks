@@ -1,14 +1,15 @@
 (function () {
   "use strict";
 
-  var DATA = window.QB_B1_P2 || [];
-  var state = { level: "", search: "", onlyB1: false, allMs: false };
+  var SUB = window.QB_SUB || { code: "", p2: [] };
+  var CODE = SUB.code;
+  var DATA = SUB.p2;
+  var state = { level: "", search: "", onlyHit: false, allMs: false };
   var $ = function (id) { return document.getElementById(id); };
 
   function esc(s) {
     return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; });
   }
-  function norm(s) { return String(s).toLowerCase().replace(/[^a-z]/g, ""); }
   function labelOf(key) {
     if (!key) return "";
     return "(" + key[0] + ")" + (key.length > 1 ? "(" + key.slice(1) + ")" : "");
@@ -37,13 +38,13 @@
   }
 
   function partBlock(q, p) {
-    var isB1 = q.b1.indexOf(p.key) !== -1;
-    var others = p.subtopics.filter(function (s) { return s !== "B.1"; });
+    var hit = q.hits.indexOf(p.key) !== -1;
+    var others = p.subtopics.filter(function (s) { return s !== CODE; });
     return (p.pre ? '<div class="qhtml part-context">' + p.pre + "</div>" : "") +
-      '<div class="p2-part' + (isB1 ? " is-b1" : "") + '"><div class="part-head">' +
+      '<div class="p2-part' + (hit ? " is-hit" : "") + '"><div class="part-head">' +
       (p.label ? '<span class="part-label">' + esc(p.label) + "</span>" : "") +
-      (isB1 ? '<span class="b1-badge">B.1</span>' : "") +
-      (!isB1 && others.length ? '<span class="other-subs">' + others.join(", ") + "</span>" : "") +
+      (hit ? '<span class="hit-badge">' + esc(CODE) + "</span>" : "") +
+      (!hit && others.length ? '<span class="other-subs">' + others.join(", ") + "</span>" : "") +
       '<span class="mini"><button class="toggle' + (state.allMs ? " on" : "") + '" data-panel="ms">Markscheme</button>' +
       (p.er ? ' <button class="toggle" data-panel="er">Rapport</button>' : "") + "</span></div>" +
       '<div class="qhtml">' + p.q + "</div>" +
@@ -55,7 +56,7 @@
       (q.aliases.length ? '<span class="chip" title="Même question listée sous un autre numéro">aussi ' + q.aliases.map(esc).join(", ") + "</span>" : "") +
       '<span class="chip">' +
       sessionLabel(q.session) + (q.tz !== "TZ0" ? " · " + q.tz : "") + '</span><span class="chip lvl-' + q.level + '">' +
-      q.level + '</span><span class="b1-list">Parties B.1 : ' + q.b1.map(labelOf).join(", ") +
+      q.level + '</span><span class="hit-list">Parties ' + esc(CODE) + " : " + q.hits.map(labelOf).join(", ") +
       '</span><span class="marks">[' + q.marks + " points]</span></div>";
     return '<article class="card">' + head + '<div class="card-body">' +
       q.parts.map(function (p) { return partBlock(q, p); }).join("") + "</div></article>";
@@ -63,10 +64,10 @@
 
   function render() {
     var items = DATA.filter(visible);
-    var nParts = items.reduce(function (n, q) { return n + q.b1.length; }, 0);
-    $("stats").innerHTML = "<span><b>" + items.length + "</b> questions Paper 2 · <b>" + nParts + "</b> parties B.1</span>";
+    var nParts = items.reduce(function (n, q) { return n + q.hits.length; }, 0);
+    $("stats").innerHTML = "<span><b>" + items.length + "</b> questions Paper 2 · <b>" + nParts + "</b> parties " + esc(CODE) + "</span>";
     var list = $("list");
-    list.classList.toggle("only-b1", state.onlyB1);
+    list.classList.toggle("only-hit", state.onlyHit);
     list.innerHTML = items.length ? items.map(card).join("") : '<div class="empty-state">Aucune question ne correspond.</div>';
   }
 
@@ -85,7 +86,7 @@
     document.querySelectorAll("#levelSeg button").forEach(function (x) { x.classList.toggle("active", x === b); });
     render();
   });
-  $("onlyB1").addEventListener("change", function () { state.onlyB1 = this.checked; render(); });
+  $("onlyHit").addEventListener("change", function () { state.onlyHit = this.checked; render(); });
   $("allMs").addEventListener("change", function () { state.allMs = this.checked; render(); });
   var timer;
   $("search").addEventListener("input", function () {

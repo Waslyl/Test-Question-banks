@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Construit data/b1-paper2.js : les questions Paper 2 du sous-thème B.1, avec toutes leurs parties.
+"""Construit data/<sous-thème>.js : les questions Paper 1A et Paper 2 d'un sous-thème.
 
 Usage :
-    python3 scripts/build_b1_paper2.py merged.json split.json page_B1.html
+    python3 scripts/build_subtopic.py merged.json split.json page.html B.3
 
-- La liste des questions et des parties B.1 vient de la page HTML du sous-thème B.1.
+- page.html est une page de la Questionbank enregistrée en HTML : soit la page du sous-thème,
+  soit celle du thème entier (on lit alors seulement la section du sous-thème demandé).
+- La liste des questions (et, pour le Paper 2, des parties rattachées au sous-thème) vient de
+  cette page.
 - Le contenu vient des exports JSON, fusionnés partie par partie : le fichier split garde la
   numérotation complète (ex. 2AI -> a(i)) et le markscheme de chaque partie ; le fichier merged
   apporte, pour les anciens sujets, le texte de contexte placé avant certaines parties. Aucune des
@@ -146,12 +149,30 @@ def find_merged(merged, parent, split_parts):
     return None
 
 
-def main(merged_path, split_path, html_path):
+def section(html, code):
+    """Partie de la page qui concerne le sous-thème, et son titre."""
+    heads = [(m.start(), re.sub(r"<[^>]+>|\s+", " ", m.group(1)).strip())
+             for m in re.finditer(r"<h[1-4][^>]*>(.*?)</h[1-4]>", html, re.S)]
+    for i, (pos, text) in enumerate(heads):
+        if text.startswith(code + " "):
+            end = next((p for p, t in heads[i + 1:] if re.match(r"[A-E]\.\d ", t)), len(html))
+            sub = html[pos:end]
+            # page du sous-thème lui-même : son titre est le premier et la liste suit
+            return sub, text[len(code) + 1:]
+    sys.exit(f"Section {code} introuvable dans la page")
+
+
+def main(merged_path, split_path, html_path, code):
     merged = {r["question_id"]: r for r in json.load(open(merged_path, encoding="utf-8"))}
     split = json.load(open(split_path, encoding="utf-8"))
-    html = open(html_path, encoding="utf-8", errors="ignore").read()
+    html, title = section(open(html_path, encoding="utf-8", errors="ignore").read(), code)
 
-    # Questions et parties listées dans la page B.1 (identifiants numérotés uniquement)
+    p1a = []
+    for qid in re.findall(r"<li>\s*((?:\d\d[MN]|SPM|EXE)\.1A\.(?:SL|HL)\.TZ\d\.\d+):", html):
+        if qid not in p1a:
+            p1a.append(qid)
+
+    # Questions Paper 2 et parties rattachées au sous-thème (identifiants numérotés uniquement)
     wanted = OrderedDict()
     for qid in re.findall(r"<li>\s*((?:\d\d[MN]|SPM|EXE)\.2\.(?:SL|HL)\.TZ\d\.\d+[\w().]*):", html):
         m = re.match(r"(.*\.TZ\d\.)(\d+)(.*)", qid)
@@ -159,7 +180,7 @@ def main(merged_path, split_path, html_path):
         wanted.setdefault(parent, set()).add(norm(m.group(3)))
 
     out = []
-    for parent, b1_parts in wanted.items():
+    for parent, hit_parts in wanted.items():
         info = parse_id(parent)
         new_format = info["session"] in ("23M", "SPM", "EXE")
         split_parts = split_pieces(split, parent)
@@ -186,8 +207,14 @@ def main(merged_path, split_path, html_path):
                 pre=mp.get("pre", ""), q=mp.get("q") or sp.get("q", ""),
                 ms=sp.get("ms") or mp.get("ms", ""), er=sp.get("er") or mp.get("er", ""),
             ))
+        present = [p["key"] for p in parts]
+        dropped = sorted(k for k in hit_parts if k not in present)
+        if dropped:
+            # ex. 19M.2.SL.TZ2.2 : la page liste (c)(i) et (c)(ii), doublons de (d)(i) et (d)(ii)
+            print(f"  {parent} : parties listées mais absentes des données, ignorées : {dropped}")
+        hit_parts = [k for k in hit_parts if k in present]
         out.append(OrderedDict(id=parent, session=info["session"], level=info["level"], tz=info["tz"],
-                               num=info["num"], b1=sorted(b1_parts, key=sort_key),
+                               num=info["num"], hits=sorted(hit_parts, key=sort_key),
                                marks=sum(marks_of(p["q"]) for p in parts), parts=parts))
 
     # même question listée sous deux numéros dans le même sujet (ex. 23M.2.SL.TZ2.12 et .17) :
@@ -199,21 +226,23 @@ def main(merged_path, split_path, html_path):
         if key in by_text:
             first = by_text[key]
             first["aliases"].append(q["id"])
-            first["b1"] = sorted(set(first["b1"]) | set(q["b1"]), key=sort_key)
+            first["hits"] = sorted(set(first["hits"]) | set(q["hits"]), key=sort_key)
             continue
         q["aliases"] = []
         by_text[key] = q
         kept.append(q)
     out = kept
-    path = os.path.join(ROOT, "data", "b1-paper2.js")
+    slug = code.lower().replace(".", "")
+    path = os.path.join(ROOT, "data", slug + ".js")
     with open(path, "w", encoding="utf-8") as f:
-        f.write("window.QB_B1_P2 = ")
-        json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
+        f.write("window.QB_SUB = ")
+        json.dump(OrderedDict(code=code, title=title, p1a=p1a, p2=out), f, ensure_ascii=False, separators=(",", ":"))
         f.write(";\n")
-    print(f"b1-paper2.js : {len(out)} questions, {sum(len(q['parts']) for q in out)} parties")
+    print(f"{slug}.js : {code} {title} — {len(p1a)} questions Paper 1A, {len(out)} questions Paper 2 "
+          f"({sum(len(q['hits']) for q in out)} parties {code}, {sum(len(q['parts']) for q in out)} parties en tout)")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 5:
         sys.exit(__doc__)
     main(*sys.argv[1:])
