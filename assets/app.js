@@ -3,8 +3,8 @@
 
   var PAGE = 15;
   var PAPERS = {
-    p1a: { label: "Paper 1A", sub: "Questions à choix multiple", file: "data/paper1a.js", global: "QB_P1A" },
-    p2: { label: "Paper 2", sub: "Questions à réponse longue", file: "data/paper2.js", global: "QB_P2" }
+    p1a: { label: "Paper 1A", sub: "Questions à choix multiple", file: "data/paper1a.js?v=01327c1b", global: "QB_P1A" },
+    p2: { label: "Paper 2", sub: "Questions à réponse longue", file: "data/paper2.js?v=2d0c6a97", global: "QB_P2" }
   };
   var STORE_KEY = "qb-physics-answers";
 
