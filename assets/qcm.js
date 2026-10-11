@@ -87,6 +87,7 @@
       verdict = '<span class="verdict ok">Réponse : ' + q.answer + "</span>";
     }
     var actions = "";
+    if (q.method && reveal) actions += '<button class="toggle on" data-panel="ms">Markscheme</button>';
     if (q.er) actions += '<button class="toggle" data-panel="er">Rapport des examinateurs</button>';
     if (prev) actions += '<button class="toggle" data-retry="1">Réessayer</button>';
     var chips = q.subtopics.map(function (s) { return '<span class="chip sub">' + s + "</span>"; }).join("");
@@ -96,6 +97,8 @@
       '</span><span class="chip lvl-' + q.level + '">' + q.level + "</span>" + chips + '<span class="marks">[1]</span></div>' +
       '<div class="card-body qhtml">' + q.q + '</div><div class="mcq">' + opts + verdict + "</div>" +
       (actions ? '<div class="actions">' + actions + "</div>" : "") +
+      (q.method && reveal ? '<div class="panel ms qhtml method"><h4>Markscheme</h4><p class="method-answer">Réponse : <strong>' +
+        q.answer + "</strong></p><p class=\"method-title\">Méthode</p>" + q.method + "</div>" : "") +
       (q.er ? '<div class="panel er qhtml hidden"><h4>Rapport des examinateurs</h4>' + q.er + "</div>" : "") +
       "</article>";
   }

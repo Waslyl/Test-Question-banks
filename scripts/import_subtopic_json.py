@@ -60,6 +60,25 @@ def import_qcm(qcm):
     return out
 
 
+def add_methods(p1a, code):
+    """Ajoute la méthode de résolution rédigée pour chaque QCM (data/methods/<sous-thème>.json)."""
+    path = os.path.join(ROOT, "data", "methods", code.lower().replace(".", "") + ".json")
+    if not os.path.exists(path):
+        return
+    methods = json.load(open(path, encoding="utf-8"))
+    for q in p1a:
+        m = methods.get(q["key"])
+        if not m:
+            print(f"  pas de méthode pour {q['id']} ({q['key']})")
+            continue
+        if m["ref"] != q["id"] or m["answer"] != q["answer"]:
+            sys.exit(f"Méthode incohérente pour {q['key']} : {m['ref']}/{m['answer']} au lieu de {q['id']}/{q['answer']}")
+        q["method"] = "<ol>" + "".join(f"<li>{step}</li>" for step in m["steps"]) + "</ol>"
+    unused = set(methods) - {"_info"} - {q["key"] for q in p1a}
+    if unused:
+        print(f"  méthodes sans QCM correspondant : {sorted(unused)}")
+
+
 def import_exercise(ex, code, merged, split):
     hits = [norm(p["label"]) for p in ex["parts"]]
     full = build_parts(ex["reference"], merged, split) if merged else []
@@ -101,6 +120,7 @@ def main(export_path, merged_path, split_path):
     code, title = data["syllabus_section"]["code"], data["syllabus_section"]["title"]
 
     p1a = import_qcm(data["qcm"])
+    add_methods(p1a, code)
     p2 = [import_exercise(ex, code, merged, split) for ex in data["structured_questions"]]
     for q in p2:
         if not q["complete"]:

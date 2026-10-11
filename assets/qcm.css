@@ -31,3 +31,8 @@
 }
 .paper-tabs a.active { background: #fff; color: var(--navy); border-color: #fff; }
 @media (max-width: 860px) { .paper-tabs a { padding: 6px 10px; font-size: 13px; } }
+
+.panel.method .method-answer { margin: 0 0 6px; }
+.panel.method .method-title { margin: 8px 0 2px; font-weight: 700; color: var(--navy); }
+.panel.method ol { margin: 0; padding-left: 22px; }
+.panel.method li { margin: 4px 0; }
