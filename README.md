@@ -63,6 +63,18 @@ Les QCM et la liste des parties viennent de l'export dédié. Les fichiers merge
 
 Pour B.3, chaque QCM a une méthode de résolution rédigée en français, qui s'affiche dans le markscheme sous la réponse, après que l'élève a répondu. Les méthodes se trouvent dans `data/methods/b3.json`, une entrée par QCM. Pour corriger ou ajouter une méthode, modifie ce fichier puis relance `import_subtopic_json.py` : le script vérifie que la référence et la réponse de chaque méthode correspondent au QCM.
 
+## Sujet d'entraînement W4ss Academy (PDF)
+
+`exams/W4ss_Academy_Physics_B3_Test.pdf` est un sujet B.3 Gas laws de 20 points : 10 QCM (Paper 1A) et 10 points de questions longues (Paper 2). La mise en page suit celle des sujets de physique du DP. Il est accompagné de son corrigé, `exams/W4ss_Academy_Physics_B3_Markscheme.pdf`, avec les réponses, les méthodes des QCM et le markscheme du Paper 2.
+
+Pour le régénérer (par exemple après avoir changé les questions retenues en haut de `scripts/build_exam.py`) :
+
+```bash
+python3 scripts/build_exam.py B3_Gas_laws_questions.json
+node scripts/print_pdf.cjs exams/w4ss-b3-test.html exams/W4ss_Academy_Physics_B3_Test.pdf
+node scripts/print_pdf.cjs exams/w4ss-b3-markscheme.html exams/W4ss_Academy_Physics_B3_Markscheme.pdf
+```
+
 ## Après chaque modification
 
 Lance `python3 scripts/stamp_versions.py`. Ce script ajoute à chaque fichier JS/CSS un numéro de version (`?v=...`) pour que les navigateurs rechargent les fichiers modifiés. Sans lui, un navigateur peut mélanger un ancien fichier en cache avec un nouveau, et la page ne s'affiche plus (par exemple, les QCM ne se chargent pas).
