@@ -83,14 +83,19 @@ node scripts/print_pdf.cjs exams/w4ss-b3-markscheme-2.html exams/W4ss_Academy_Ph
 
 ## Paper 2 seul : questions dont l'introduction manquait
 
-`exams/W4ss_Academy_Physics_B3_Paper2.pdf` (référence W4SS–PHY–B3–P2–01, 30 points, 50 minutes) rassemble les 4 questions longues B.3 dont le texte d'introduction manque dans la source : EXE.2.SL.TZ0.10, EXE.2.SL.TZ0.8, 23M.2.SL.TZ2.2 et 22N.2.SL.TZ0.2. Chaque question est complète, avec toutes ses parties. Le corrigé est dans `exams/W4ss_Academy_Physics_B3_Paper2_Markscheme.pdf`.
+Les 5 questions longues B.3 dont le texte d'introduction manque dans la source sont complétées et rassemblées dans deux sujets « Paper 2 seul ». Chaque question garde toutes ses parties.
 
-Les introductions, dont le graphique *pV* en fonction de θ de 23M.2.SL.TZ2.2, sont écrites dans `scripts/written_stems.py`. Toutes leurs données viennent du markscheme officiel, pour que la correction reste valable. Le détail des vérifications est en tête du fichier. Pour régénérer :
+| Sujet | Référence | Questions | Points | Fichiers (`exams/`) |
+|---|---|---|---|---|
+| 1 (SL/HL) | W4SS–PHY–B3–P2–01 | EXE.2.SL.TZ0.10, EXE.2.SL.TZ0.8, 23M.2.SL.TZ2.2, 22N.2.SL.TZ0.2 | 30 | `W4ss_Academy_Physics_B3_Paper2.pdf` + `_Markscheme` |
+| 2 (HL) | W4SS–PHY–B3–P2–02 | EXE.2.HL.TZ0.1 (centrale nucléaire : fission, radioactivité, cycle de Brayton, turbine) | 20 | `W4ss_Academy_Physics_B3_Paper2_2.pdf` + `_Markscheme` |
+
+Les introductions, graphiques et tableaux sont écrits dans `scripts/written_stems.py`. Toutes leurs données viennent du markscheme officiel, pour que la correction reste valable, et les calculs de vérification sont en tête du fichier. Par exemple, le cycle de EXE.2.HL.TZ0.1 (1,0 mol d'hélium, 8,0/1,6 MPa) redonne exactement les travaux 8.23, 9.11, 4.32 et 3.25 kJ, 20.58 kJ reçus et un rendement de 0.47. Pour régénérer :
 
 ```bash
-python3 scripts/build_p2_paper.py
-node scripts/print_pdf.cjs exams/w4ss-b3-paper2.html exams/W4ss_Academy_Physics_B3_Paper2.pdf
-node scripts/print_pdf.cjs exams/w4ss-b3-paper2-markscheme.html exams/W4ss_Academy_Physics_B3_Paper2_Markscheme.pdf
+python3 scripts/build_p2_paper.py            # ou : python3 scripts/build_p2_paper.py 2
+node scripts/print_pdf.cjs exams/w4ss-b3-paper2-2.html exams/W4ss_Academy_Physics_B3_Paper2_2.pdf
+node scripts/print_pdf.cjs exams/w4ss-b3-paper2-2-markscheme.html exams/W4ss_Academy_Physics_B3_Paper2_2_Markscheme.pdf
 ```
 
 ## Après chaque modification

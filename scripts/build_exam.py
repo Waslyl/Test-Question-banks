@@ -172,7 +172,7 @@ def p2_section(specs, p2_by_id, sources):
 
     specs : [(question, parties retenues[, options])]. Options : relabel (nouvelle numérotation),
     pre (texte ajouté avant une partie), intro (texte d'introduction qui remplace celui de la source),
-    note (mention ajoutée dans la page des sources).
+    replace (corrections de texte par partie : [(ancien, nouveau)]), note (mention ajoutée dans la page des sources).
     """
     p2_blocks, ms_p2, total_p2 = [], [], 0
     first = True
@@ -195,6 +195,9 @@ def p2_section(specs, p2_by_id, sources):
             letter, roman = roman_label(relabel.get(p["key"], p["key"]))
             part_pre = (clean(p["pre"]) if i > 0 and p["pre"] else "") + extra_pre.get(p["key"], "")
             body = clean(p["q"])
+            for wrong, right in opts.get("replace", {}).get(p["key"], []):   # correction d'un texte abîmé dans la source
+                assert wrong in body, f"{qid} ({p['key']}) : « {wrong} » introuvable"
+                body = body.replace(wrong, right)
             if single:
                 label = ""
             elif roman and letter == prev_letter:
@@ -328,6 +331,11 @@ math { font-family: "Liberation Sans", Arial, sans-serif; math-style: normal; fo
 math mi { text-transform: none; }
 math mfrac { padding: 0 1px; }
 .lead { margin: 0 0 6mm; }
+p.center { text-align: center; }
+.data-table { border-collapse: collapse; margin: 2mm auto 4mm; }
+.data-table th, .data-table td { border: 1px solid #222; padding: 1.4mm 4mm; text-align: center; font-size: 10pt; }
+.data-table th { font-weight: 700; }
+svg.graph { display: block; width: 128mm; margin: 2mm auto 4mm; }
 .qn.p2 { margin-bottom: 1mm; }
 .part { display: flex; align-items: flex-start; margin: 3mm 0 3mm; }
 .part .part-label { width: 22mm; flex: none; padding-left: 11mm; display: flex; }
@@ -471,7 +479,7 @@ def shell(ctx, title, inner):
 def cover(ctx, kind_label, instructions, duration):
     return f"""<section class="page cover">{BRAND}
 <div class="inner">
-  <h1>Physics<br>Standard and higher level<br>{kind_label}<br>{ctx['title']}</h1>
+  <h1>Physics<br>{ctx.get('level', 'Standard and higher level')}<br>{kind_label}<br>{ctx['title']}</h1>
   <div class="date">{ctx['date']}</div>
   <div class="zones"><b>W4ss Academy</b> {ctx.get('series', 'practice test')} {ctx['number']}<span class="sep"></span><b>Topic</b> {ctx['title']}<span class="sep"></span><b>Ref.</b> {ctx['code']}</div>
   <div class="row"><div class="duration">{duration}</div>
