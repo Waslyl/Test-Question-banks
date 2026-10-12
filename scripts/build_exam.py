@@ -153,9 +153,30 @@ def build(export_path, num):
         sources.append((f"Paper 1A — question {n}", q["reference"] + variant))
 
     # ---------- Paper 2 ----------
+    p2_blocks, ms_p2, total_p2 = p2_section(paper["p2"], p2_by_id, sources)
+    assert total_p2 == 10, total_p2
+
+    today = date.today()
+    ctx = dict(code=paper["code"], number=num, title=TITLE, site=SITE, date=f"{today.day} {today.strftime('%B %Y')}", year=today.year)
+    os.makedirs(OUT, exist_ok=True)
+    suffix = "" if num == 1 else f"-{num}"
+    for name, content in ((f"w4ss-b3-test{suffix}.html", page_test(ctx, p1a_blocks, p2_blocks, sources)),
+                          (f"w4ss-b3-markscheme{suffix}.html", page_markscheme(ctx, key_rows, ms_p2))):
+        with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
+            f.write(content)
+        print("exams/" + name)
+
+
+def p2_section(specs, p2_by_id, sources):
+    """Blocs HTML du Paper 2, lignes du markscheme et total des points.
+
+    specs : [(question, parties retenues[, options])]. Options : relabel (nouvelle numérotation),
+    pre (texte ajouté avant une partie), intro (texte d'introduction qui remplace celui de la source),
+    note (mention ajoutée dans la page des sources).
+    """
     p2_blocks, ms_p2, total_p2 = [], [], 0
     first = True
-    for n, spec in enumerate(paper["p2"], 1):
+    for n, spec in enumerate(specs, 1):
         qid, keys = spec[0], spec[1]
         opts = spec[2] if len(spec) > 2 else {}
         relabel, extra_pre = opts.get("relabel", {}), opts.get("pre", {})
@@ -163,7 +184,7 @@ def build(export_path, num):
         parts = [p for p in q["parts"] if p["key"] in keys]
         missing = set(keys) - {p["key"] for p in parts}
         assert not missing, f"{qid} : parties absentes {missing}"
-        intro = "".join(clean(p["pre"]) for p in parts[:1] if p["pre"])
+        intro = opts.get("intro") or "".join(clean(p["pre"]) for p in parts[:1] if p["pre"])
         lead = '<p class="lead">Answer <strong>all</strong> questions. Answers must be written within the answer boxes provided.</p>' if first else ""
         first = False
         single = len(parts) == 1
@@ -209,18 +230,9 @@ def build(export_path, num):
             ms_p2.append((n, display_label(letter, roman) if not single else "", m, p["ms"]))
         shown = [k for k in keys if marks_of(next(p["q"] for p in parts if p["key"] == k))]
         sources.append((f"Paper 2 — question {n}", qid + ("" if len(parts) == len(q["parts"]) else
-                                                            f" ({'part' if len(shown) == 1 else 'parts'} " + ", ".join(display_label(*roman_label(k)) for k in shown) + ")")))
-    assert total_p2 == 10, total_p2
-
-    today = date.today()
-    ctx = dict(code=paper["code"], number=num, title=TITLE, site=SITE, date=f"{today.day} {today.strftime('%B %Y')}", year=today.year)
-    os.makedirs(OUT, exist_ok=True)
-    suffix = "" if num == 1 else f"-{num}"
-    for name, content in ((f"w4ss-b3-test{suffix}.html", page_test(ctx, p1a_blocks, p2_blocks, sources)),
-                          (f"w4ss-b3-markscheme{suffix}.html", page_markscheme(ctx, key_rows, ms_p2))):
-        with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
-            f.write(content)
-        print("exams/" + name)
+                                                            f" ({'part' if len(shown) == 1 else 'parts'} " + ", ".join(display_label(*roman_label(k)) for k in shown) + ")")
+                        + (f" — {opts['note']}" if opts.get("note") else "")))
+    return p2_blocks, ms_p2, total_p2
 
 
 def display_label(letter, roman):
@@ -356,6 +368,7 @@ math mfrac { padding: 0 1px; }
 .sources h2 { font-size: 11.5pt; margin: 0 0 4mm; }
 .sources table { border-collapse: collapse; width: 100%; font-size: 9.5pt; }
 .sources td { border-bottom: 1px solid #ccc; padding: 1.6mm 2mm; }
+.sources td:first-child { white-space: nowrap; width: 48mm; vertical-align: top; }
 .sources p { font-size: 9pt; color: #333; }
 
 /* markscheme */
@@ -460,7 +473,7 @@ def cover(ctx, kind_label, instructions, duration):
 <div class="inner">
   <h1>Physics<br>Standard and higher level<br>{kind_label}<br>{ctx['title']}</h1>
   <div class="date">{ctx['date']}</div>
-  <div class="zones"><b>W4ss Academy</b> practice test {ctx['number']}<span class="sep"></span><b>Topic</b> {ctx['title']}<span class="sep"></span><b>Ref.</b> {ctx['code']}</div>
+  <div class="zones"><b>W4ss Academy</b> {ctx.get('series', 'practice test')} {ctx['number']}<span class="sep"></span><b>Topic</b> {ctx['title']}<span class="sep"></span><b>Ref.</b> {ctx['code']}</div>
   <div class="row"><div class="duration">{duration}</div>
     <div class="name-box">Student name<div class="boxes">{'<span></span>' * 12}</div></div></div>
   <h2>Instructions to students</h2>
@@ -469,6 +482,33 @@ def cover(ctx, kind_label, instructions, duration):
 <div class="foot"><span class="pages" id="total-pages"></span>
   <span class="rights">{ctx['code']}<br><span class="c">W4ss Academy {ctx['year']}</span></span></div>
 <div class="site">Online revision: {ctx['site']}</div>{BAND}</section>"""
+
+
+def sources_page(sources, extra=""):
+    src_rows = "".join(f"<tr><td>{htmlmod.escape(a)}</td><td>{htmlmod.escape(b)}</td></tr>" for a, b in sources)
+    return f"""<section class="page sources"><div class="hdr"><span class="pn"></span><span class="code"></span></div>
+<div class="body"><h2>Sources of the questions</h2>
+<p>This practice test was put together by W4ss Academy for internal class use. The questions are taken from the
+IB DP Physics Questionbank (first assessment 2025), topic B.3 Gas laws. They remain the property of the
+International Baccalaureate Organization and must not be published or sold.</p>{extra}
+<table>{src_rows}</table></div></section>"""
+
+
+def page_p2(ctx, p2_blocks, sources, total, duration, extra_sources=""):
+    """Sujet composé uniquement d'un Paper 2."""
+    instructions = [
+        "Write your name in the boxes above.",
+        "Do not open this examination paper until instructed to do so.",
+        "Answer all questions.",
+        "Answers must be written within the answer boxes provided.",
+        "A calculator is required for this paper.",
+        "A clean copy of the <b>physics data booklet</b> is required for this paper.",
+        f"The maximum mark for this examination paper is <b>[{total} marks]</b>.",
+    ]
+    blocks = list(p2_blocks)
+    blocks[0] = blocks[0].replace('data-kind="p2"', 'data-kind="p2" data-newpage', 1)
+    inner = cover(ctx, "Paper 2", instructions, duration) + "".join(blocks) + sources_page(sources, extra_sources)
+    return shell(ctx, "W4ss Academy — Physics B.3 Paper 2", inner)
 
 
 def page_test(ctx, p1a_blocks, p2_blocks, sources):
@@ -500,24 +540,18 @@ def page_test(ctx, p1a_blocks, p2_blocks, sources):
 <table>{rows}</table>
 <p class="hint">Shade <b>one</b> circle per question. If you change your answer, cross out the wrong circle clearly.</p>
 </div></section>"""
-    src_rows = "".join(f"<tr><td>{htmlmod.escape(a)}</td><td>{htmlmod.escape(b)}</td></tr>" for a, b in sources)
-    src = f"""<section class="page sources"><div class="hdr"><span class="pn"></span><span class="code"></span></div>
-<div class="body"><h2>Sources of the questions</h2>
-<p>This practice test was put together by W4ss Academy for internal class use. The questions are taken from the
-IB DP Physics Questionbank (first assessment 2025), topic B.3 Gas laws. They remain the property of the
-International Baccalaureate Organization and must not be published or sold.</p>
-<table>{src_rows}</table></div></section>"""
+    src = sources_page(sources)
     inner = cover(ctx, "Paper 1A and Paper 2", instructions, "30 minutes [Paper 1A and Paper 2]") + \
         "".join(p1a_blocks) + sheet + "".join(p2_blocks) + src
     return shell(ctx, "W4ss Academy — Physics B.3 practice test", inner)
 
 
-def page_markscheme(ctx, key_rows, ms_p2):
+def page_markscheme(ctx, key_rows, ms_p2, instructions=None, duration="Paper 1A and Paper 2", total=20):
     def table(head, row, first, newpage=False):
         h = f"<tr>{''.join(f'<th>{c}</th>' for c in head)}</tr>" if first else ""
         return f'<div class="blk ms-item" data-kind="ms"{" data-newpage" if newpage else ""}><table>{h}{row}</table></div>'
 
-    blocks = ['<div class="blk ms-item" data-kind="ms" data-newpage><h2>Paper 1A — answers and methods</h2></div>']
+    blocks = ['<div class="blk ms-item" data-kind="ms" data-newpage><h2>Paper 1A — answers and methods</h2></div>'] if key_rows else []
     for i, (n, q, m) in enumerate(key_rows):
         row = (f'<tr><td class="qn-c">{n}.</td><td class="c">{q["correct_option"]}</td><td><ol>'
                + "".join(f"<li>{s}</li>" for s in m["steps"]) + "</ol></td></tr>")
@@ -526,13 +560,13 @@ def page_markscheme(ctx, key_rows, ms_p2):
     for i, (n, lab, m, h) in enumerate(ms_p2):
         row = f'<tr><td class="qn-c">{n}. {lab}</td><td class="c">[{m}]</td><td class="ms-html">{clean(h)}</td></tr>'
         blocks.append(table(["Question", "Marks", "Answers"], row, i == 0))
-    instructions = [
+    instructions = instructions or [
         "This markscheme is for teachers and for self-assessment after the test.",
         "Paper 1A: one mark per correct answer. The method (in French) shows how to find each answer.",
         "Paper 2: award one mark per ✓ in the markscheme. Accept equivalent answers (OWTTE).",
-        "Total: <b>[20 marks]</b>.",
+        f"Total: <b>[{total} marks]</b>.",
     ]
-    inner = cover(ctx, "Markscheme", instructions, "Paper 1A and Paper 2") + "".join(blocks)
+    inner = cover(ctx, "Markscheme", instructions, duration) + "".join(blocks)
     return shell(ctx, "W4ss Academy — Physics B.3 markscheme", inner)
 
 

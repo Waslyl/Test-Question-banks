@@ -81,6 +81,18 @@ node scripts/print_pdf.cjs exams/w4ss-b3-test-2.html exams/W4ss_Academy_Physics_
 node scripts/print_pdf.cjs exams/w4ss-b3-markscheme-2.html exams/W4ss_Academy_Physics_B3_Markscheme_2.pdf
 ```
 
+## Paper 2 seul : questions dont l'introduction manquait
+
+`exams/W4ss_Academy_Physics_B3_Paper2.pdf` (référence W4SS–PHY–B3–P2–01, 30 points, 50 minutes) rassemble les 4 questions longues B.3 dont le texte d'introduction manque dans la source : EXE.2.SL.TZ0.10, EXE.2.SL.TZ0.8, 23M.2.SL.TZ2.2 et 22N.2.SL.TZ0.2. Chaque question est complète, avec toutes ses parties. Le corrigé est dans `exams/W4ss_Academy_Physics_B3_Paper2_Markscheme.pdf`.
+
+Les introductions, dont le graphique *pV* en fonction de θ de 23M.2.SL.TZ2.2, sont écrites dans `scripts/written_stems.py`. Toutes leurs données viennent du markscheme officiel, pour que la correction reste valable. Le détail des vérifications est en tête du fichier. Pour régénérer :
+
+```bash
+python3 scripts/build_p2_paper.py
+node scripts/print_pdf.cjs exams/w4ss-b3-paper2.html exams/W4ss_Academy_Physics_B3_Paper2.pdf
+node scripts/print_pdf.cjs exams/w4ss-b3-paper2-markscheme.html exams/W4ss_Academy_Physics_B3_Paper2_Markscheme.pdf
+```
+
 ## Après chaque modification
 
 Lance `python3 scripts/stamp_versions.py`. Ce script ajoute à chaque fichier JS/CSS un numéro de version (`?v=...`) pour que les navigateurs rechargent les fichiers modifiés. Sans lui, un navigateur peut mélanger un ancien fichier en cache avec un nouveau, et la page ne s'affiche plus (par exemple, les QCM ne se chargent pas).
