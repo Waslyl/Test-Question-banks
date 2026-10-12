@@ -24,7 +24,8 @@ TITLE = "B.3 Gas laws"
 SITE = "waslyl.github.io/Test-Question-banks"
 
 # Sujets d'entraînement B.3 : 10 QCM (clé unique de l'export B.3) et 10 points de Paper 2
-# (question, parties retenues). Aucune question ne doit apparaître dans deux sujets.
+# (question, parties retenues[, options]). Aucun QCM ni aucune partie ne doit apparaître dans deux sujets.
+# Options : relabel = nouvelle numérotation d'une partie, pre = texte de contexte ajouté avant une partie.
 PAPERS = {
     1: dict(
         code="W4SS–PHY–B3–01", test="W4ss_Academy_Physics_B3_Test", markscheme="W4ss_Academy_Physics_B3_Markscheme",
@@ -59,6 +60,26 @@ PAPERS = {
         ],
         p2=[("19M.2.SL.TZ2.2", ["a", "b", "c", "di", "dii"]),  # 8 points
             ("EXE.2.SL.TZ0.7", ["c"])],                         # 2 points
+    ),
+    3: dict(
+        code="W4SS–PHY–B3–03", test="W4ss_Academy_Physics_B3_Test_3", markscheme="W4ss_Academy_Physics_B3_Markscheme_3",
+        qcm=[
+            "qcm_07adb88678b9",  # 19M.1A.SL.TZ2.13  pV/T = constante est empirique
+            "qcm_67d8098ac154",  # 20N.1A.SL.TZ0.7   ce qui n'est PAS une hypothèse du modèle cinétique
+            "qcm_f4ff156f3991",  # 21M.1A.SL.TZ1.10  (variante 1) ce qu'explique le modèle cinétique
+            "qcm_49d6f9498e08",  # EXE.1A.SL.TZ0.9   même vitesse, densités différentes
+            "qcm_3d3b625d3c33",  # EXE.1A.SL.TZ0.10  expression de la pression
+            "qcm_d6ffae117655",  # 21M.1A.SL.TZ2.11  p_Y / p_X = 3/2
+            "qcm_a2c514dfb596",  # 21N.1A.SL.TZ0.10  pente du graphe V(T)
+            "qcm_ed69263d9680",  # SPM.1A.HL.TZ0.17  n_X / n_Y = 2
+            "qcm_f25f964388b5",  # 19M.1A.SL.TZ2.14  cylindres reliés, +1/3 RT/V
+            "qcm_745211fe354a",  # EXE.1A.SL.TZ0.12  vitesse moyenne 460 m/s
+        ],
+        p2=[("EXE.2.SL.TZ0.7", ["a", "b"]),                     # 5 points
+            ("EXE.2.SL.TZ0.9", ["a", "ai", "aii", "c"],         # 4 points
+             dict(relabel={"c": "b"},
+                  pre={"c": "<p>A container holds a mixture of argon and helium atoms at a temperature of 37 °C.</p>"})),
+            ("22N.2.SL.TZ0.2", ["bi"])],                        # 1 point
     ),
 }
 
@@ -127,15 +148,22 @@ def build(export_path, num):
             f'<div class="blk" data-kind="p1a"><div class="qn"><span class="num">{n}.</span>'
             f'<div class="qbody">{statement}<div class="options">{options_html(q)}</div></div></div></div>')
         key_rows.append((n, q, methods[k]))
-        sources.append((f"Paper 1A — question {n}", q["reference"]))
+        same_ref = [x["id"] for x in export["qcm"] if x["reference"] == q["reference"]]
+        variant = f" (variant {same_ref.index(k) + 1})" if len(same_ref) > 1 else ""
+        sources.append((f"Paper 1A — question {n}", q["reference"] + variant))
 
     # ---------- Paper 2 ----------
     p2_blocks, ms_p2, total_p2 = [], [], 0
     first = True
-    for n, (qid, keys) in enumerate(paper["p2"], 1):
+    for n, spec in enumerate(paper["p2"], 1):
+        qid, keys = spec[0], spec[1]
+        opts = spec[2] if len(spec) > 2 else {}
+        relabel, extra_pre = opts.get("relabel", {}), opts.get("pre", {})
         q = p2_by_id[qid]
         parts = [p for p in q["parts"] if p["key"] in keys]
-        intro = "".join(clean(p["pre"]) for p in parts if p["pre"])
+        missing = set(keys) - {p["key"] for p in parts}
+        assert not missing, f"{qid} : parties absentes {missing}"
+        intro = "".join(clean(p["pre"]) for p in parts[:1] if p["pre"])
         lead = '<p class="lead">Answer <strong>all</strong> questions. Answers must be written within the answer boxes provided.</p>' if first else ""
         first = False
         single = len(parts) == 1
@@ -143,7 +171,8 @@ def build(export_path, num):
         for i, p in enumerate(parts):
             m = marks_of(p["q"])
             total_p2 += m
-            letter, roman = roman_label(p["key"])
+            letter, roman = roman_label(relabel.get(p["key"], p["key"]))
+            part_pre = (clean(p["pre"]) if i > 0 and p["pre"] else "") + extra_pre.get(p["key"], "")
             body = clean(p["q"])
             if single:
                 label = ""
@@ -155,20 +184,32 @@ def build(export_path, num):
                 label = f'<span class="pl">({letter})</span>'
             prev_letter = letter
             head = ""
-            if i == 0 and not single:
+            first_line = False
+            if i == 0 and not single and intro:
                 head = f'{lead}<div class="qn p2"><span class="num">{n}.</span><div class="qbody">{intro}</div></div>'
+            elif i == 0 and not single:   # pas d'énoncé commun : « 1. (a) ... » sur la même ligne
+                head = lead
+                label = f'<span class="num">{n}.</span>' + label
+                first_line = True
             elif i == 0:
                 head = lead
                 label = f'<span class="num">{n}.</span>'
             text = (intro + body) if single else body
+            context = f'<div class="part-context">{part_pre}</div>' if part_pre else ""
+            if m == 0:   # énoncé commun à des sous-parties : ni barème ni cadre
+                p2_blocks.append(
+                    f'<div class="blk stem" data-kind="p2" data-q="{n}">{head}{context}'
+                    f'<div class="part{" first" if first_line else ""}"><div class="part-label">{label}</div><div class="part-text">{text}</div></div></div>')
+                continue
             p2_blocks.append(
-                f'<div class="blk" data-kind="p2" data-q="{n}">{head}'
-                f'<div class="part{" single" if single else ""}{" sub" if roman and not single else ""}">'
+                f'<div class="blk" data-kind="p2" data-q="{n}">{head}{context}'
+                f'<div class="part{" single" if single else ""}{" sub" if roman and not single else ""}{" first" if first_line else ""}">'
                 f'<div class="part-label">{label}</div><div class="part-text">{text}</div>'
                 f'<div class="part-marks">[{m}]</div></div>{answer_box(m)}</div>')
             ms_p2.append((n, display_label(letter, roman) if not single else "", m, p["ms"]))
+        shown = [k for k in keys if marks_of(next(p["q"] for p in parts if p["key"] == k))]
         sources.append((f"Paper 2 — question {n}", qid + ("" if len(parts) == len(q["parts"]) else
-                                                            " (part " + ", ".join(display_label(*roman_label(k)) for k in keys) + ")")))
+                                                            f" ({'part' if len(shown) == 1 else 'parts'} " + ", ".join(display_label(*roman_label(k)) for k in shown) + ")")))
     assert total_p2 == 10, total_p2
 
     today = date.today()
@@ -282,6 +323,8 @@ math mfrac { padding: 0 1px; }
 .part .part-label .pl { width: 10mm; flex: none; }
 .part .part-label .pr { width: 10mm; flex: none; }
 .part.single .part-label { width: 11mm; padding-left: 0; font-weight: 700; }
+.part.first .part-label { padding-left: 0; }
+.part.first .part-label .num { width: 11mm; flex: none; font-weight: 700; }
 .part .part-marks { align-self: flex-end; }
 .part .part-text { flex: 1; min-width: 0; }
 .part .part-text p { margin: 0 0 2mm; }
@@ -290,6 +333,9 @@ math mfrac { padding: 0 1px; }
 .answer-box { border: 1px solid #222; padding: 3mm 9mm 4mm; }
 .answer-box .dots { height: 7.4mm; border-bottom: 1.4px dotted #444; }
 .cont { font-weight: 700; margin-bottom: 4mm; }
+.blk.stem { padding-bottom: 0; }
+.part-context { padding-left: 11mm; margin: 0 0 1mm; }
+.part-context p { margin: 0 0 2mm; }
 .section-title { font-weight: 700; font-size: 11.5pt; margin: 0 0 5mm; }
 .end-rule { border-top: 1px solid #222; margin-top: 4mm; }
 
@@ -493,7 +539,7 @@ def page_markscheme(ctx, key_rows, ms_p2):
 def check_no_overlap():
     seen = {}
     for num, paper in PAPERS.items():
-        for item in paper["qcm"] + [qid for qid, _ in paper["p2"]]:
+        for item in paper["qcm"] + [f"{spec[0]} ({k})" for spec in paper["p2"] for k in spec[1]]:
             if item in seen:
                 sys.exit(f"{item} est à la fois dans le sujet {seen[item]} et dans le sujet {num}")
             seen[item] = num

@@ -71,8 +71,9 @@ Chaque sujet porte sur B.3 Gas laws et fait 20 points : 10 QCM (Paper 1A) et 10 
 |---|---|---|
 | 1 | W4SS–PHY–B3–01 | `W4ss_Academy_Physics_B3_Test.pdf`, `W4ss_Academy_Physics_B3_Markscheme.pdf` |
 | 2 | W4SS–PHY–B3–02 | `W4ss_Academy_Physics_B3_Test_2.pdf`, `W4ss_Academy_Physics_B3_Markscheme_2.pdf` |
+| 3 | W4SS–PHY–B3–03 | `W4ss_Academy_Physics_B3_Test_3.pdf`, `W4ss_Academy_Physics_B3_Markscheme_3.pdf` |
 
-Les deux sujets n'ont aucune question en commun, et le script vérifie qu'aucune question ne sert deux fois. Les questions retenues sont dans `PAPERS`, en haut de `scripts/build_exam.py`. Pour régénérer :
+Aucun QCM ni aucune partie de question longue ne sert dans deux sujets, et le script le vérifie. Avec le sujet 3, les QCM B.3 et les parties de Paper 2 B.3 dont l'énoncé est complet sont presque tous utilisés : il reste 2 QCM. Les questions retenues sont dans `PAPERS`, en haut de `scripts/build_exam.py`. Pour régénérer :
 
 ```bash
 python3 scripts/build_exam.py B3_Gas_laws_questions.json        # tous les sujets (ou ajouter le numéro : 2)
