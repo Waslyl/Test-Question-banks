@@ -63,16 +63,21 @@ Les QCM et la liste des parties viennent de l'export dédié. Les fichiers merge
 
 Pour B.3, chaque QCM a une méthode de résolution rédigée en français, qui s'affiche dans le markscheme sous la réponse, après que l'élève a répondu. Les méthodes se trouvent dans `data/methods/b3.json`, une entrée par QCM. Pour corriger ou ajouter une méthode, modifie ce fichier puis relance `import_subtopic_json.py` : le script vérifie que la référence et la réponse de chaque méthode correspondent au QCM.
 
-## Sujet d'entraînement W4ss Academy (PDF)
+## Sujets d'entraînement W4ss Academy (PDF)
 
-`exams/W4ss_Academy_Physics_B3_Test.pdf` est un sujet B.3 Gas laws de 20 points : 10 QCM (Paper 1A) et 10 points de questions longues (Paper 2). La mise en page suit celle des sujets de physique du DP. Il est accompagné de son corrigé, `exams/W4ss_Academy_Physics_B3_Markscheme.pdf`, avec les réponses, les méthodes des QCM et le markscheme du Paper 2.
+Chaque sujet porte sur B.3 Gas laws et fait 20 points : 10 QCM (Paper 1A) et 10 points de questions longues (Paper 2). La mise en page suit celle des sujets de physique du DP. Chaque sujet a son corrigé : réponses et méthodes des QCM, markscheme du Paper 2.
 
-Pour le régénérer (par exemple après avoir changé les questions retenues en haut de `scripts/build_exam.py`) :
+| Sujet | Référence | Fichiers (`exams/`) |
+|---|---|---|
+| 1 | W4SS–PHY–B3–01 | `W4ss_Academy_Physics_B3_Test.pdf`, `W4ss_Academy_Physics_B3_Markscheme.pdf` |
+| 2 | W4SS–PHY–B3–02 | `W4ss_Academy_Physics_B3_Test_2.pdf`, `W4ss_Academy_Physics_B3_Markscheme_2.pdf` |
+
+Les deux sujets n'ont aucune question en commun, et le script vérifie qu'aucune question ne sert deux fois. Les questions retenues sont dans `PAPERS`, en haut de `scripts/build_exam.py`. Pour régénérer :
 
 ```bash
-python3 scripts/build_exam.py B3_Gas_laws_questions.json
-node scripts/print_pdf.cjs exams/w4ss-b3-test.html exams/W4ss_Academy_Physics_B3_Test.pdf
-node scripts/print_pdf.cjs exams/w4ss-b3-markscheme.html exams/W4ss_Academy_Physics_B3_Markscheme.pdf
+python3 scripts/build_exam.py B3_Gas_laws_questions.json        # tous les sujets (ou ajouter le numéro : 2)
+node scripts/print_pdf.cjs exams/w4ss-b3-test-2.html exams/W4ss_Academy_Physics_B3_Test_2.pdf
+node scripts/print_pdf.cjs exams/w4ss-b3-markscheme-2.html exams/W4ss_Academy_Physics_B3_Markscheme_2.pdf
 ```
 
 ## Après chaque modification

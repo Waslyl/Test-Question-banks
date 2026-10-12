@@ -2,8 +2,10 @@
 """Génère un sujet d'entraînement W4ss Academy (Paper 1A + Paper 2) et son markscheme, en HTML.
 
 Usage :
-    python3 scripts/build_exam.py export_B3.json
-    node scripts/print_pdf.cjs exams/w4ss-b3-test.html exams/W4ss_Academy_Physics_B3_Test.pdf
+    python3 scripts/build_exam.py export_B3.json [numéro du sujet]
+    node scripts/print_pdf.cjs exams/w4ss-b3-test-2.html exams/W4ss_Academy_Physics_B3_Test_2.pdf
+
+Les sujets sont décrits dans PAPERS (questions retenues, référence, noms de fichiers).
 
 La mise en page reprend celle des sujets de physique du DP (couverture, numérotation « – n – »,
 « Turn over », cadres de réponse en pointillés) avec l'identité W4ss Academy.
@@ -18,28 +20,47 @@ from datetime import date
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "exams")
 
-CODE = "W4SS–PHY–B3–01"
 TITLE = "B.3 Gas laws"
 SITE = "waslyl.github.io/Test-Question-banks"
 
-# 10 QCM (clé unique de l'export B.3), dans l'ordre du sujet
-QCM = [
-    "qcm_8d8b0b07c0fb",  # 20N.1A.SL.TZ0.12  distance entre molécules
-    "qcm_cd020f734c07",  # 19N.1A.SL.TZ0.9   gaz réel ≈ gaz parfait
-    "qcm_506630153200",  # 20N.1A.SL.TZ0.11  origine de la pression
-    "qcm_32d5e7548033",  # 21N.1A.SL.TZ0.12  333 °C
-    "qcm_920155f589aa",  # 22N.1A.SL.TZ0.10  constante de Boltzmann
-    "qcm_d6f55b33e326",  # 21M.1A.SL.TZ1.10  énergie cinétique et vitesse moyennes
-    "qcm_a28992795606",  # 19M.1A.SL.TZ1.13  réservoir, N/4 molécules
-    "qcm_3282e5b185de",  # 21M.1A.SL.TZ1.12  80 kPa
-    "qcm_f4036d4a0136",  # 19M.1A.SL.TZ2.12  argon / néon
-    "qcm_db579e54282b",  # 22M.1A.SL.TZ1.12  graphe P en fonction de 1/V
-]
-# Paper 2 : (question, parties retenues) — 6 + 4 = 10 points
-P2 = [
-    ("22M.2.SL.TZ2.2", ["a", "bi", "bii"]),
-    ("EXE.2.SL.TZ0.9", ["b"]),
-]
+# Sujets d'entraînement B.3 : 10 QCM (clé unique de l'export B.3) et 10 points de Paper 2
+# (question, parties retenues). Aucune question ne doit apparaître dans deux sujets.
+PAPERS = {
+    1: dict(
+        code="W4SS–PHY–B3–01", test="W4ss_Academy_Physics_B3_Test", markscheme="W4ss_Academy_Physics_B3_Markscheme",
+        qcm=[
+            "qcm_8d8b0b07c0fb",  # 20N.1A.SL.TZ0.12  distance entre molécules
+            "qcm_cd020f734c07",  # 19N.1A.SL.TZ0.9   gaz réel ≈ gaz parfait
+            "qcm_506630153200",  # 20N.1A.SL.TZ0.11  origine de la pression
+            "qcm_32d5e7548033",  # 21N.1A.SL.TZ0.12  333 °C
+            "qcm_920155f589aa",  # 22N.1A.SL.TZ0.10  constante de Boltzmann
+            "qcm_d6f55b33e326",  # 21M.1A.SL.TZ1.10  énergie cinétique et vitesse moyennes
+            "qcm_a28992795606",  # 19M.1A.SL.TZ1.13  réservoir, N/4 molécules
+            "qcm_3282e5b185de",  # 21M.1A.SL.TZ1.12  80 kPa
+            "qcm_f4036d4a0136",  # 19M.1A.SL.TZ2.12  argon / néon
+            "qcm_db579e54282b",  # 22M.1A.SL.TZ1.12  graphe P en fonction de 1/V
+        ],
+        p2=[("22M.2.SL.TZ2.2", ["a", "bi", "bii"]),   # 6 points
+            ("EXE.2.SL.TZ0.9", ["b"])],               # 4 points
+    ),
+    2: dict(
+        code="W4SS–PHY–B3–02", test="W4ss_Academy_Physics_B3_Test_2", markscheme="W4ss_Academy_Physics_B3_Markscheme_2",
+        qcm=[
+            "qcm_3ab501fdd43f",  # 22M.1A.SL.TZ2.12  hypothèse du modèle cinétique
+            "qcm_d2e9dc6b08a2",  # 19N.1A.SL.TZ0.10  volume et température -> pression
+            "qcm_31d04b647dc8",  # 21M.1A.SL.TZ1.25  u (en g) × N_A = 1
+            "qcm_743b57e493c6",  # 22M.1A.SL.TZ2.11  nRT = N k_B T
+            "qcm_9b75ec078f87",  # 22N.1A.SL.TZ0.11  même masse : CH4
+            "qcm_2f35b9008823",  # 21M.1A.SL.TZ2.10  470 °C
+            "qcm_d8f4f5f93e2a",  # 23M.1A.SL.TZ2.9   détente isotherme, affirmations I à III
+            "qcm_8cdad079475c",  # 22M.1A.SL.TZ2.10  piston, (5/3)T
+            "qcm_900660dc4083",  # 20N.1A.SL.TZ0.9   récipients reliés, 70 Pa
+            "qcm_929ab9a6b884",  # 23M.1A.SL.TZ2.10  ballon, 50 mg ajoutés
+        ],
+        p2=[("19M.2.SL.TZ2.2", ["a", "b", "c", "di", "dii"]),  # 8 points
+            ("EXE.2.SL.TZ0.7", ["c"])],                         # 2 points
+    ),
+}
 
 
 def load_js(path):
@@ -47,8 +68,17 @@ def load_js(path):
     return json.loads(s[s.index("=") + 1:].strip().rstrip(";"))
 
 
+def fix_math(h):
+    """Corrige les espacements du MathML de la source : « 3 . 0 » -> « 3.0 », espace avant l'unité, « ° C »."""
+    h = re.sub(r"<mn>\s*(\d+)\s*</mn>\s*<mo>\s*\.\s*</mo>\s*<mn>\s*(\d+)\s*</mn>", r"<mn>\1.\2</mn>", h)
+    h = re.sub(r"<mo>(?:\s|&nbsp;|\u00a0|\u2009|\u2005)+</mo>", '<mspace width="0.25em"></mspace>', h)
+    h = re.sub(r"<mo>\s*°\s*</mo>", '<mo lspace="0" rspace="0">°</mo>', h)
+    return h
+
+
 def clean(h):
     """HTML d'énoncé sans les libellés, barèmes et styles parasites de la source."""
+    h = fix_math(h)
     h = re.sub(r'<div class="(?:marks|question_part_label|qc_marks_available|qn_code_number)">.*?</div>', "", h, flags=re.S)
     h = re.sub(r'\sstyle="[^"]*"', "", h)
     h = re.sub(r'<div class="(?:t_qn_question_content|qc_body[^"]*|question)"[^>]*>', "<div>", h)
@@ -67,7 +97,7 @@ def options_html(q):
             f'<tr><td class="lbl">{o["label"]}.</td>' + "".join(f"<td>{htmlmod.escape(v)}</td>" for v in o["values"]) + "</tr>"
             for o in q["options"])
         return f'<table class="opt-table"><tr><th class="lbl"></th>{head}</tr>{rows}</table>'
-    return "".join(f'<div class="opt"><span class="lbl">{o["label"]}.</span><span>{o.get("html") or htmlmod.escape(o["text"])}</span></div>'
+    return "".join(f'<div class="opt"><span class="lbl">{o["label"]}.</span><span>{fix_math(o.get("html") or htmlmod.escape(o["text"]))}</span></div>'
                    for o in q["options"])
 
 
@@ -80,7 +110,8 @@ def answer_box(marks):
     return '<div class="answer-box">' + '<div class="dots"></div>' * (2 * marks) + "</div>"
 
 
-def build(export_path):
+def build(export_path, num):
+    paper = PAPERS[num]
     export = json.load(open(export_path, encoding="utf-8"))
     qcm_by_key = {q["id"]: q for q in export["qcm"]}
     methods = json.load(open(os.path.join(ROOT, "data", "methods", "b3.json"), encoding="utf-8"))
@@ -89,7 +120,7 @@ def build(export_path):
 
     # ---------- Paper 1A ----------
     p1a_blocks, key_rows, sources = [], [], []
-    for n, k in enumerate(QCM, 1):
+    for n, k in enumerate(paper["qcm"], 1):
         q = qcm_by_key[k]
         statement = clean(q["statement"]["html"])
         p1a_blocks.append(
@@ -101,7 +132,7 @@ def build(export_path):
     # ---------- Paper 2 ----------
     p2_blocks, ms_p2, total_p2 = [], [], 0
     first = True
-    for n, (qid, keys) in enumerate(P2, 1):
+    for n, (qid, keys) in enumerate(paper["p2"], 1):
         q = p2_by_id[qid]
         parts = [p for p in q["parts"] if p["key"] in keys]
         intro = "".join(clean(p["pre"]) for p in parts if p["pre"])
@@ -141,13 +172,14 @@ def build(export_path):
     assert total_p2 == 10, total_p2
 
     today = date.today()
-    ctx = dict(code=CODE, title=TITLE, site=SITE, date=f"{today.day} {today.strftime('%B %Y')}", year=today.year)
+    ctx = dict(code=paper["code"], number=num, title=TITLE, site=SITE, date=f"{today.day} {today.strftime('%B %Y')}", year=today.year)
     os.makedirs(OUT, exist_ok=True)
-    with open(os.path.join(OUT, "w4ss-b3-test.html"), "w", encoding="utf-8") as f:
-        f.write(page_test(ctx, p1a_blocks, p2_blocks, sources))
-    with open(os.path.join(OUT, "w4ss-b3-markscheme.html"), "w", encoding="utf-8") as f:
-        f.write(page_markscheme(ctx, key_rows, ms_p2))
-    print("exams/w4ss-b3-test.html et exams/w4ss-b3-markscheme.html générés")
+    suffix = "" if num == 1 else f"-{num}"
+    for name, content in ((f"w4ss-b3-test{suffix}.html", page_test(ctx, p1a_blocks, p2_blocks, sources)),
+                          (f"w4ss-b3-markscheme{suffix}.html", page_markscheme(ctx, key_rows, ms_p2))):
+        with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
+            f.write(content)
+        print("exams/" + name)
 
 
 def display_label(letter, roman):
@@ -382,7 +414,7 @@ def cover(ctx, kind_label, instructions, duration):
 <div class="inner">
   <h1>Physics<br>Standard and higher level<br>{kind_label}<br>{ctx['title']}</h1>
   <div class="date">{ctx['date']}</div>
-  <div class="zones"><b>W4ss Academy</b> practice test<span class="sep"></span><b>Topic</b> {ctx['title']}<span class="sep"></span><b>Ref.</b> {ctx['code']}</div>
+  <div class="zones"><b>W4ss Academy</b> practice test {ctx['number']}<span class="sep"></span><b>Topic</b> {ctx['title']}<span class="sep"></span><b>Ref.</b> {ctx['code']}</div>
   <div class="row"><div class="duration">{duration}</div>
     <div class="name-box">Student name<div class="boxes">{'<span></span>' * 12}</div></div></div>
   <h2>Instructions to students</h2>
@@ -458,7 +490,18 @@ def page_markscheme(ctx, key_rows, ms_p2):
     return shell(ctx, "W4ss Academy — Physics B.3 markscheme", inner)
 
 
+def check_no_overlap():
+    seen = {}
+    for num, paper in PAPERS.items():
+        for item in paper["qcm"] + [qid for qid, _ in paper["p2"]]:
+            if item in seen:
+                sys.exit(f"{item} est à la fois dans le sujet {seen[item]} et dans le sujet {num}")
+            seen[item] = num
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) not in (2, 3):
         sys.exit(__doc__)
-    build(sys.argv[1])
+    check_no_overlap()
+    for num in ([int(sys.argv[2])] if len(sys.argv) == 3 else sorted(PAPERS)):
+        build(sys.argv[1], num)
