@@ -23,21 +23,23 @@ python3 scripts/build_maths.py Maths_AA_SL_Topic_4_questions.json   # produit da
 python3 scripts/stamp_versions.py
 ```
 
-Le script réécrit aussi le MathML de la source que Chrome n'affiche plus : `<mfenced>` (les parenthèses de P(A ∩ B) disparaissaient) et `<menclose>` (la barre de P(A | B)). Il recolle les nombres décimaux coupés en morceaux (« 0 . 25 » → « 0.25 »).
+Le script réécrit aussi le MathML de la source que Chrome n'affiche plus : `<mfenced>` (les parenthèses de P(A ∩ B) disparaissaient) et `<menclose>` (la barre de P(A | B)). Il recolle les nombres décimaux coupés en morceaux (« 0 . 25 » → « 0.25 ») et remet à la bonne taille le prime de A′.
 
 ### Sujets W4ss Academy de 30 minutes sur 4.1 à 4.6 (PDF)
 
-Deux sujets au format des papers de Maths AA SL : couverture, section A (questions courtes, cadres de réponse), section B (question longue, à rédiger sur les pages lignées à la fin du sujet) et page des sources. Chaque sujet a son markscheme.
+Sujets au format des papers de Maths AA SL : couverture, section A (questions courtes ; le cadre de réponse suit chaque question et continue sur la page suivante si besoin), section B (question longue, à rédiger sur les pages lignées à la fin du sujet) et page des sources. Les sujets du jeu 2 n'ont pas de section B. Chaque sujet a son markscheme, et aucune question ne sert dans deux sujets.
 
 | Sujet | Référence | Questions | Points | Fichiers (`exams/`) |
 |---|---|---|---|---|
-| Paper 1 (sans calculatrice) | W4SS–MAA–T4–P1–01 | 19N.1.SL.TZ0.S_2 (4.6 diagramme de Venn), 21N.1.SL.TZ0.4 (4.5, 4.6 arbre, indépendance), 21M.1.SL.TZ2.7 (4.2 fréquences cumulées, 4.3 médiane, 4.1 échantillonnage) | 25 | `W4ss_Academy_Maths_AA_T4_Paper1.pdf` + `_Markscheme` |
-| Paper 2 (calculatrice) | W4SS–MAA–T4–P2–01 | EXN.2.SL.TZ0.1 (4.3 moyenne), 22M.2.SL.TZ1.2 (4.3 médiane, écart type), 21M.2.SL.TZ2.4 (4.6 probabilités, indépendance), EXM.2.SL.TZ0.1 (a) à (d) (4.1 échantillonnage, 4.4 corrélation) | 27 | `W4ss_Academy_Maths_AA_T4_Paper2.pdf` + `_Markscheme` |
+| Jeu 1, Paper 1 (sans calculatrice) | W4SS–MAA–T4–P1–01 | 19N.1.SL.TZ0.S_2 (4.6 diagramme de Venn), 21N.1.SL.TZ0.4 (4.5, 4.6 arbre, indépendance), 21M.1.SL.TZ2.7 (4.2 fréquences cumulées, 4.3 médiane, 4.1 échantillonnage) | 25 | `W4ss_Academy_Maths_AA_T4_Paper1.pdf` + `_Markscheme` |
+| Jeu 1, Paper 2 (calculatrice) | W4SS–MAA–T4–P2–01 | EXN.2.SL.TZ0.1 (4.3 moyenne), 22M.2.SL.TZ1.2 (4.3 médiane, écart type), 21M.2.SL.TZ2.4 (4.6 probabilités, indépendance), EXM.2.SL.TZ0.1 (a) à (d) (4.1 échantillonnage, 4.4 corrélation) | 27 | `W4ss_Academy_Maths_AA_T4_Paper2.pdf` + `_Markscheme` |
+| Jeu 2, Paper 1, section A seule | W4SS–MAA–T4–P1–02 | 19M.1.SL.TZ1.S_1 (4.6 diagramme de Venn), 21M.1.SL.TZ1.4 (4.2 boîte à moustaches, valeurs aberrantes), 22N.1.SL.TZ0.6 (4.6 événements indépendants), EXM.1.SL.TZ0.2 (4.2, 4.3 quartiles, valeurs aberrantes) | 26 | `W4ss_Academy_Maths_AA_T4_Paper1_2.pdf` + `_Markscheme` |
+| Jeu 2, Paper 2, section A seule | W4SS–MAA–T4–P2–02 | 19M.2.SL.TZ1.S_1 (4.3 moyenne, 4.2 boîte à moustaches), 22M.2.SL.TZ2.5 (4.2, 4.3 boîtes à moustaches, valeurs aberrantes), 22N.2.SL.TZ0.1 (4.4 régression, r), 22M.2.SL.TZ1.6 (a) (4.6 indépendance), 22M.2.SL.TZ2.4 (4.6 indépendance) | 26 | `W4ss_Academy_Maths_AA_T4_Paper2_2.pdf` + `_Markscheme` |
 
-La durée suit le rythme des vrais sujets (90 minutes pour 80 points). La partie (e) de EXM.2.SL.TZ0.1 est écartée : elle demande la droite de régression de t en s, c'est-à-dire de x en y (4.10). Les questions retenues et leurs sous-thèmes sont dans `PAPERS`, en haut de `scripts/build_maths_exam.py`. Pour régénérer :
+La durée suit le rythme des vrais sujets (90 minutes pour 80 points). Deux parties sont écartées parce qu'elles sortent de 4.1 à 4.6 : la partie (e) de EXM.2.SL.TZ0.1 demande la droite de régression de t en s, c'est-à-dire de x en y (4.10), et la partie (b) de 22M.2.SL.TZ1.6 demande P(A′ | B′) avec la définition formelle de l'indépendance (4.11). Les questions retenues et leurs sous-thèmes sont dans `PAPERS`, en haut de `scripts/build_maths_exam.py`. Pour régénérer :
 
 ```bash
-python3 scripts/build_maths_exam.py            # ou : python3 scripts/build_maths_exam.py p2
+python3 scripts/build_maths_exam.py            # ou un seul sujet : p1, p2, p1-2, p2-2
 node scripts/print_pdf.cjs exams/w4ss-maa-t4-p2.html exams/W4ss_Academy_Maths_AA_T4_Paper2.pdf
 node scripts/print_pdf.cjs exams/w4ss-maa-t4-p2-markscheme.html exams/W4ss_Academy_Maths_AA_T4_Paper2_Markscheme.pdf
 ```

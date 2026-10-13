@@ -2,7 +2,7 @@
 """Sujets d'entraînement W4ss Academy de Maths AA SL : Paper 1 et Paper 2 de 30 minutes sur 4.1 à 4.6.
 
 Usage :
-    python3 scripts/build_maths_exam.py            # les deux sujets (ou ajouter le nom : p1)
+    python3 scripts/build_maths_exam.py            # tous les sujets (ou ajouter le nom : p1, p2, p1-2, p2-2)
     node scripts/print_pdf.cjs exams/w4ss-maa-t4-p1.html exams/W4ss_Academy_Maths_AA_T4_Paper1.pdf
     node scripts/print_pdf.cjs exams/w4ss-maa-t4-p1-markscheme.html exams/W4ss_Academy_Maths_AA_T4_Paper1_Markscheme.pdf
 
@@ -13,6 +13,7 @@ de build_exam.py.
 
 Le fichier source ne donne pas le sous-thème des questions : il est indiqué à la main dans PAPERS.
 Les parties hors de 4.1 à 4.6 sont écartées (ex. droite de régression de x en y, 4.10).
+Les sujets du jeu 2 n'ont pas de section B : seulement des questions courtes avec cadres de réponse.
 """
 import base64
 import html as htmlmod
@@ -23,27 +24,46 @@ import sys
 from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build_exam import (BRAND, CSS, OUT, PAGINATE, ROOT, SITE, answer_box, clean, cover,  # noqa: E402
-                        load_js, sources_page)
+from build_exam import (BRAND, CSS, OUT, PAGINATE, ROOT, SITE, clean, cover, load_js,  # noqa: E402
+                        sources_page)
 
 TITLE = "4.1–4.6 Statistics and probability"
 
-# (référence, parties retenues ou None pour toutes, sous-thèmes)
+# (référence, parties retenues ou None pour toutes, sous-thèmes). Aucune question ne sert dans deux sujets.
+# Les sujets du jeu 2 n'ont pas de section B.
 PAPERS = {
     "p1": dict(
-        paper=1, code="W4SS–MAA–T4–P1–01", html="w4ss-maa-t4-p1", minutes=30,
+        paper=1, set=1, code="W4SS–MAA–T4–P1–01", html="w4ss-maa-t4-p1", minutes=30,
         A=[("19N.1.SL.TZ0.S_2", None, "4.6 Venn diagrams"),
            ("21N.1.SL.TZ0.4", None, "4.5, 4.6 tree diagrams, independent events")],
         B=[("21M.1.SL.TZ2.7", None, "4.2 cumulative frequency, percentiles · 4.3 median · 4.1 sampling")],
     ),
     "p2": dict(
-        paper=2, code="W4SS–MAA–T4–P2–01", html="w4ss-maa-t4-p2", minutes=30,
+        paper=2, set=1, code="W4SS–MAA–T4–P2–01", html="w4ss-maa-t4-p2", minutes=30,
         A=[("EXN.2.SL.TZ0.1", None, "4.3 mean"),
            ("22M.2.SL.TZ1.2", None, "4.3 median and standard deviation of a frequency table"),
            ("21M.2.SL.TZ2.4", None, "4.6 combined events, conditional probability, independence")],
         B=[("EXM.2.SL.TZ0.1", ["a", "b.i", "b.ii", "c", "d.i", "d.ii", "d.iii"],
             "4.1 stratified and systematic sampling · 4.4 correlation coefficient r "
             "— part (e), regression line of t on s (4.10), left out")],
+    ),
+    "p1-2": dict(
+        paper=1, set=2, code="W4SS–MAA–T4–P1–02", html="w4ss-maa-t4-p1-2", minutes=30,
+        A=[("19M.1.SL.TZ1.S_1", None, "4.6 Venn diagram, combined events"),
+           ("21M.1.SL.TZ1.4", None, "4.2 box and whisker diagram, outliers"),
+           ("22N.1.SL.TZ0.6", None, "4.6 independent events, combined events"),
+           ("EXM.1.SL.TZ0.2", None, "4.2, 4.3 quartiles, interquartile range, outliers")],
+        B=[],
+    ),
+    "p2-2": dict(
+        paper=2, set=2, code="W4SS–MAA–T4–P2–02", html="w4ss-maa-t4-p2-2", minutes=30,
+        A=[("19M.2.SL.TZ1.S_1", None, "4.3 mean · 4.2 box-and-whisker plot, interquartile range"),
+           ("22M.2.SL.TZ2.5", None, "4.2, 4.3 box and whisker diagrams, outliers, skewness"),
+           ("22N.2.SL.TZ0.1", None, "4.4 regression line of y on x, correlation coefficient r"),
+           ("22M.2.SL.TZ1.6", ["a"], "4.6 independent events — part (b), P(A′ | B′) with the formal "
+                                     "definition of independence (4.11), left out"),
+           ("22M.2.SL.TZ2.4", None, "4.6 independent events, combined events")],
+        B=[],
     ),
 }
 
@@ -69,12 +89,23 @@ MATHS_CSS = """
 .part-context img, .qbody img { max-width: 100%; height: auto; display: block; margin: 2mm auto 3mm; }
 .qn + .part, .part-context + .part { margin-top: 2mm; }
 .blk[data-kind="p2"], .blk[data-kind="secb"] { padding-bottom: 3mm; }
-.blk.boxblk { padding-bottom: 9mm; }
+/* cadre de réponse de la section A : une ligne par bloc, pour qu'il puisse continuer sur la page suivante */
+.blk.bl { padding: 0; }
+.blk.bl.last { padding-bottom: 9mm; }
+.bl .bx { border-left: 1px solid #222; border-right: 1px solid #222; padding: 0 9mm; }
+.bl .bx .dots { height: 7.4mm; border-bottom: 1.4px dotted #444; }
+.bl.first .bx { border-top: 1px solid #222; padding-top: 3mm; }
+.bl.last .bx { border-bottom: 1px solid #222; padding-bottom: 4mm; }
+/* ombres internes : ne changent ni la hauteur ni le débordement de la page */
+.bl.top .bx { box-shadow: inset 0 1px 0 #222; }
+.bl.bottom .bx { box-shadow: inset 0 -1.4px 0 #222; }
+.bl.top.bottom .bx { box-shadow: inset 0 1px 0 #222, inset 0 -1.4px 0 #222; }
 .part { margin: 2mm 0; }
 .page .ftr .dnw { position: absolute; left: 0; right: 0; top: 6.5mm; text-align: center; }
 .lined h2 { font-size: 11pt; margin: 0 0 4mm; }
 .lined .answer-box { border: 0; padding: 0; }
 .ms-item h2.next { margin-top: 8mm; }
+.ms-item .ms-html img { max-width: 80mm; height: auto; display: block; margin: 1mm 0; }
 """
 
 # pages de la section B : « Do not write solutions on this page. », comme dans les sujets
@@ -82,6 +113,12 @@ MATHS_JS = """
 <script>
 Array.prototype.forEach.call(document.querySelectorAll(".page.secb .ftr"), function (f) {
   f.insertAdjacentHTML("beforeend", '<span class="dnw">Do not write solutions on this page.</span>');
+});
+// cadre coupé par un changement de page : on le ferme en bas de page et on le rouvre en haut de la suivante
+Array.prototype.forEach.call(document.querySelectorAll(".page .body .bl"), function (k) {
+  var prev = k.previousElementSibling, next = k.nextElementSibling;
+  if (!k.classList.contains("first") && !(prev && prev.classList.contains("bl"))) k.classList.add("top");
+  if (!k.classList.contains("last") && !(next && next.classList.contains("bl"))) k.classList.add("bottom");
 });
 // formule trop large pour sa colonne : on réduit sa taille (elle ne peut pas passer à la ligne)
 Array.prototype.forEach.call(document.querySelectorAll(".page math"), function (m) {
@@ -112,7 +149,8 @@ def display_label(label):
 
 
 def ms_clean(h):
-    h = re.sub(r"<p[^>]*>\s*\* This sample question.*?</p>", "", h, flags=re.S)
+    h = re.sub(r"<p[^>]*>\s*\* This (?:sample question|question is from an exam for a previous syllabus).*?</p>",
+               "", h, flags=re.S)
     h = clean(h)
     # « [2 marks] » en fin de partie : déjà dans la colonne des points
     def only_marks(m):
@@ -142,7 +180,7 @@ def question(n, e, labels, kind):
     assert not missing, f"{e['id']} : parties absentes {missing}"
     total = sum(p["marks"] for p in parts)
     blocks, ms, shown, prev_letter = [], [], set(), None
-    single = len(parts) == 1 and not parts[0]["label"]
+    single = len(parts) == 1   # une seule partie : pas de libellé (a)
     for i, p in enumerate(parts):
         new_ctx = "".join(ctx_html[c] for c in p["ctx"] if c not in shown and c in ctx_html)
         shown.update(p["ctx"])
@@ -173,8 +211,13 @@ def question(n, e, labels, kind):
             f'<div class="part-text">{body}</div>{marks}</div></div>')
         if p["marks"]:
             ms.append((n, display_label(p["label"]), p["marks"], ms_clean(p["ms"])))
-    if kind == "p2":   # section A : un cadre de réponse après la question
-        blocks.append(f'<div class="blk boxblk" data-kind="{kind}" data-q="{n}">{answer_box(total)}</div>')
+    if kind == "p2":   # section A : un cadre de réponse après la question (2 lignes par point)
+        # des groupes de lignes : au moins 3 lignes en bas de page et 2 en haut de la suivante
+        lines = 2 * total
+        groups = [3] + [1] * (lines - 5) + [2] if lines >= 5 else [lines]
+        for j, count in enumerate(groups):
+            cls = "blk bl" + (" first" if j == 0 else "") + (" last" if j == len(groups) - 1 else "")
+            blocks.append(f'<div class="{cls}" data-kind="{kind}" data-q="{n}"><div class="bx">{LINE * count}</div></div>')
     return blocks, ms, total
 
 
@@ -212,7 +255,8 @@ def build(name, by_id):
             if section == "B":
                 lined += answer_pages(n, marks)
             old = " (former Mathematics SL course)" if e["legacy"] else ""
-            part_note = "" if labels is None else f", parts {display_label(labels[0])} to {display_label(labels[-1])}"
+            part_note = ("" if labels is None else f", part {display_label(labels[0])}" if len(labels) == 1
+                         else f", parts {display_label(labels[0])} to {display_label(labels[-1])}")
             sources.append((f"Section {section} — question {n}", f"{qid}{old}{part_note} · {topics}"))
 
     a, b = sec_blocks["A"], sec_blocks["B"]
@@ -221,13 +265,14 @@ def build(name, by_id):
         f'<p class="advice">{ADVICE[num]}</p><div class="sec-title">Section A</div>'
         '<p class="lead">Answer <strong>all</strong> questions. Answers must be written within the answer boxes '
         'provided. Working may be continued below the lines, if necessary.</p><div class="qn">', 1)
-    b[0] = b[0].replace('data-kind="secb"', 'data-kind="secb" data-newpage', 1).replace(
-        '<div class="qn">',
-        '<div class="sec-title">Section B</div><p class="lead">Answer <strong>all</strong> questions on the '
-        'answer pages at the end of this paper. Please start each question on a new page.</p><div class="qn">', 1)
+    if b:
+        b[0] = b[0].replace('data-kind="secb"', 'data-kind="secb" data-newpage', 1).replace(
+            '<div class="qn">',
+            '<div class="sec-title">Section B</div><p class="lead">Answer <strong>all</strong> questions on the '
+            'answer pages at the end of this paper. Please start each question on a new page.</p><div class="qn">', 1)
 
     today = date.today()
-    ctx = dict(code=paper["code"], number=1, series="practice set", title=TITLE, site=SITE, level="Standard level",
+    ctx = dict(code=paper["code"], number=paper["set"], series="practice set", title=TITLE, site=SITE, level="Standard level",
                subject=SUBJECT, brand=BRAND.replace("DP Physics · 2025 syllabus", "DP Mathematics AA · SL"),
                date=f"{today.day} {today.strftime('%B %Y')}", year=today.year)
     calculator = ("You are <b>not</b> permitted access to any calculator for this paper." if num == 1
@@ -236,8 +281,10 @@ def build(name, by_id):
         "Write your name in the boxes above.",
         "Do not open this examination paper until instructed to do so.",
         calculator,
-        "Section A: answer all questions. Answers must be written within the answer boxes provided.",
-        "Section B: answer all questions on the answer pages at the end of this paper.",
+        *(["Section A: answer all questions. Answers must be written within the answer boxes provided.",
+           "Section B: answer all questions on the answer pages at the end of this paper."] if b else
+          ["This paper has a Section A only. Answer all questions. Answers must be written within the answer "
+           "boxes provided."]),
         "Unless otherwise stated in the question, all numerical answers should be given exactly or correct to "
         "three significant figures.",
         "A clean copy of the <b>mathematics: analysis and approaches formula booklet</b> is required for this paper.",
@@ -256,6 +303,8 @@ def build(name, by_id):
 
     ms_blocks = []
     for section in ("A", "B"):
+        if not ms_rows[section]:
+            continue
         first = section == "A"
         ms_blocks.append(f'<div class="blk ms-item" data-kind="ms"{" data-newpage" if first else ""}>'
                          f'<h2{"" if first else " class=next"}>Section {section}</h2></div>')

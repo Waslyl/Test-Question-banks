@@ -64,6 +64,9 @@ def math_core(html):
         html = new
     html = re.sub(r'<menclose notation="left">(.*?)</menclose>', rf"<mrow>{BAR}\1</mrow>", html, flags=re.S)
     html = re.sub(r'<menclose notation="right">(.*?)</menclose>', rf"<mrow>\1{BAR}</mrow>", html, flags=re.S)
+    # prime de A′ : en exposant, Chrome le dessine minuscule ; le caractère ′ est déjà surélevé
+    html = re.sub(r"<msup>\s*(<mi>[^<]*</mi>)\s*<mo>\s*['′]\s*</mo>\s*</msup>", r"<mrow>\1<mo>′</mo></mrow>", html)
+    html = re.sub(r"<mo>\s*['′]\s*</mo>", '<mo lspace="0" rspace="0">′</mo>', html)
     # « 4 . 3² » : la partie décimale est dans le msup
     html = re.sub(r"<mn>\s*(\d+)\s*</mn>\s*<mo>\s*\.\s*</mo>\s*<msup>\s*<mn>\s*(\d+)\s*</mn>", r"<msup><mn>\1.\2</mn>", html)
     return fix_math(html)
