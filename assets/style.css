@@ -41,6 +41,8 @@ button { font: inherit; cursor: pointer; }
 .brand-title { font-weight: 700; font-size: 17px; }
 .brand-sub { font-size: 12px; opacity: .75; }
 .paper-tabs { margin-left: auto; display: flex; gap: 6px; }
+.home-link { color: #fff; opacity: .8; text-decoration: none; font-size: 14px; white-space: nowrap; margin-left: 8px; }
+.home-link:hover { opacity: 1; text-decoration: underline; }
 .paper-tabs button {
   background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.3);
   padding: 7px 14px; border-radius: 999px; font-weight: 600;
@@ -160,6 +162,8 @@ button { font: inherit; cursor: pointer; }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 860px) {
+  .home-link { font-size: 18px; margin-left: 0; }
+  .home-link .home-text { display: none; }
   .menu-btn { display: block; }
   .brand-sub { display: none; }
   .brand-title { font-size: 15px; }

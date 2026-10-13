@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maths Questionbank</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%236b3a12%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2218%22 font-family=%22Arial%22 font-weight=%22700%22 fill=%22%23fff%22 text-anchor=%22middle%22%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css?v=7c4cb034">
+  <link rel="stylesheet" href="assets/maths.css?v=83d03ddb">
+</head>
+<body class="maths">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">∑</span>
+      <div>
+        <div class="brand-title">Maths Questionbank</div>
+        <div class="brand-sub">Maths AA SL · Topic 4 Statistics and probability</div>
+      </div>
+    </div>
+    <a class="home-link" href="index.html" title="Retour à l'accueil" aria-label="Retour à l'accueil">←<span class="home-text"> Accueil</span></a>
+    <nav class="paper-tabs" id="paperTabs">
+      <button data-paper="">Tous</button>
+      <button data-paper="1">Paper 1 <small>sans calc.</small></button>
+      <button data-paper="2">Paper 2 <small>calc.</small></button>
+    </nav>
+  </header>
+
+  <main class="maths-main">
+    <div class="crumbs" id="crumbs"></div>
+    <section class="filters">
+      <input type="search" id="search" placeholder="Rechercher (texte ou référence, ex. 21M.2.SL.TZ1.7)…">
+      <div class="seg" id="sectionSeg">
+        <button data-section="" class="active">Sections A + B</button>
+        <button data-section="A">A <small>courtes</small></button>
+        <button data-section="B">B <small>longues</small></button>
+      </div>
+      <select id="session"><option value="">Toutes les sessions</option></select>
+      <label class="check"><input type="checkbox" id="allMs"> Afficher tous les markschemes</label>
+    </section>
+    <div class="stats" id="stats"></div>
+    <div id="list" class="list"></div>
+    <div class="more-wrap"><button id="more" class="more">Afficher plus</button></div>
+  </main>
+
+  <script src="data/maths-t4.js?v=ad1e1a44"></script>
+  <script src="assets/maths.js?v=85661d78"></script>
+</body>
+</html>

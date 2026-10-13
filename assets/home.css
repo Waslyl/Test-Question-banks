@@ -1,0 +1,25 @@
+.home-main { max-width: 900px; margin: 0 auto; padding: 48px 20px 60px; text-align: center; }
+.home-main h1 { color: var(--navy); font-size: 26px; margin: 0 0 28px; }
+.subjects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.subject {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 34px 24px 30px; border-radius: 16px; text-decoration: none; color: #fff;
+  box-shadow: 0 6px 18px rgba(27, 42, 74, .18); transition: transform .15s, box-shadow .15s;
+}
+.subject:hover, .subject:focus-visible { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(27, 42, 74, .26); }
+.subject.physics { background: linear-gradient(140deg, #1b2a4a, #2f4a85); }
+.subject.maths { background: linear-gradient(140deg, #6b3a12, #c9772a); }
+.subject-icon {
+  display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(255, 255, 255, .16); font-size: 34px; margin-bottom: 6px;
+}
+.subject-name { font-size: 28px; font-weight: 800; letter-spacing: .01em; }
+.subject-desc { font-size: 15px; opacity: .95; }
+.subject-meta { font-size: 13px; opacity: .8; }
+
+@media (max-width: 640px) {
+  .home-main { padding: 28px 16px 40px; }
+  .home-main h1 { font-size: 22px; margin-bottom: 18px; }
+  .subjects { grid-template-columns: 1fr; gap: 14px; }
+  .subject { padding: 26px 18px 22px; }
+}

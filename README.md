@@ -1,8 +1,29 @@
-# Physics Questionbank (DP Physics 2025)
+# Questionbank (IB DP — Physics et Maths)
 
-Site statique pour réviser les questions **Paper 1A** (QCM) et **Paper 2** du programme IB DP Physics (première évaluation 2025), classées par thème et sous-thème (A.1 → E.5, Tools, Inquiry).
+Site statique de révision. La page d'accueil (`index.html`) propose deux matières :
 
-## Fonctionnalités
+| Bouton | Page | Contenu |
+|---|---|---|
+| Physics | `physics.html` | DP Physics (première évaluation 2025) : Paper 1A (QCM) et Paper 2, classés par thème et sous-thème (A.1 → E.5, Tools, Inquiry) |
+| Maths | `maths.html` | Maths AA SL, Topic 4 Statistics and probability : 89 exercices de Paper 1 et Paper 2 |
+
+Les anciens liens vers la Questionbank de physique (`index.html#p1a?...`) redirigent automatiquement vers `physics.html`.
+
+## Maths AA SL — Topic 4
+
+- Onglets **Tous / Paper 1** (sans calculatrice) **/ Paper 2** (calculatrice)
+- Filtres : Section A (questions courtes 1 à 6) ou B (questions longues 7 à 9), session, recherche (texte ou référence)
+- Chaque exercice affiche ses textes de contexte au moment où une partie en a besoin. Chaque partie a son markscheme et, quand il existe, le rapport des examinateurs. Une case permet d'afficher tous les markschemes.
+- Les questions de l'ancien programme Mathematics SL (préfixe `S_`) sont signalées par une étiquette « ancien programme ». Celles dont l'énoncé commun manque dans la source portent un avertissement.
+
+Le fichier source ne précise pas le sous-thème (4.1, 4.2…) de chaque question : les exercices sont donc classés par paper, section et session, sans deviner de sous-thème. Pour mettre à jour les données :
+
+```bash
+python3 scripts/build_maths.py Maths_AA_SL_Topic_4_questions.json   # produit data/maths-t4.js
+python3 scripts/stamp_versions.py
+```
+
+## Physics — fonctionnalités
 
 - Onglets **Paper 1A** / **Paper 2**
 - Classement par thème et sous-thème dans la barre latérale, avec le nombre de questions

@@ -1,0 +1,41 @@
+body.maths .topbar { background: #4a2a10; }
+body.maths .brand-mark { background: #f3c27b; color: #4a2a10; font-size: 20px; }
+body.maths .paper-tabs button.active { color: #4a2a10; }
+.maths-main { max-width: 1000px; margin: 0 auto; padding: 20px 20px 60px; }
+.maths-main .crumbs { color: #4a2a10; }
+.seg button small, .paper-tabs button small { opacity: .7; font-weight: 400; }
+.seg button.active { background: #4a2a10; }
+
+.chip.paper-1 { background: #fde8d4; color: #8a3f00; }
+.chip.paper-2 { background: #e3f1fb; color: #155a8a; }
+.chip.sec { background: #edeaf9; color: #4b3a99; }
+.chip.legacy { background: #f1f1f1; color: #666; }
+.q-note { margin: 12px 18px 0; font-size: 13px; color: #8a5a00; background: #fdf3e1; border-radius: 6px; padding: 6px 10px; }
+
+.m-context { padding: 2px 0 6px; }
+.m-context + .m-part, .m-part + .m-context { margin-top: 10px; }
+.m-part { padding: 10px 12px; margin: 0 -12px; border-radius: 8px; }
+.m-part + .m-part { border-top: 1px dashed var(--line); border-radius: 0; }
+.m-part .part-head { display: flex; align-items: flex-start; gap: 10px; }
+.m-part .part-label { font-weight: 700; color: #4a2a10; min-width: 54px; flex: none; }
+.m-part .part-body { flex: 1; min-width: 0; }
+.m-part .part-marks { flex: none; font-weight: 600; color: var(--muted); }
+.m-part .mini { display: flex; gap: 6px; margin: 6px 0 0 64px; }
+.m-part .panel { margin: 8px 0 4px 64px; }
+.m-part.prompt .part-label { min-width: 54px; }
+.qhtml p { margin: .45em 0; }
+.qhtml img { max-width: 100%; height: auto; }
+
+@media (max-width: 860px) {
+  .maths-main { padding: 16px 16px 50px; }
+  .m-part .mini, .m-part .panel { margin-left: 0; }
+  .m-part .part-label { min-width: 44px; }
+}
+
+@media (max-width: 640px) {
+  body.maths .topbar { flex-wrap: wrap; row-gap: 8px; height: auto; padding-bottom: 10px; }
+  body.maths .brand-title { font-size: 15px; }
+  body.maths .home-link { margin-left: auto; }
+  body.maths .paper-tabs { order: 3; width: 100%; margin-left: 0; justify-content: space-between; }
+  body.maths .paper-tabs button { flex: 1; }
+}
