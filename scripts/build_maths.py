@@ -7,6 +7,9 @@ Usage :
 Chaque exercice garde ses textes de contexte (contexts), reliés aux parties par context_ids, et
 chaque partie garde son énoncé, son markscheme et le rapport des examinateurs. Les liens vers les
 pages sources ne sont pas repris.
+
+Le MathML de la source utilise <mfenced> (parenthèses) et <menclose notation="left|right"> (barre de
+P(A | B)), que Chrome n'affiche plus : ils sont réécrits avec des <mo> ordinaires.
 """
 import json
 import os
@@ -14,13 +17,62 @@ import re
 import sys
 from collections import OrderedDict
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from build_exam import fix_math  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FENCED = re.compile(r"<mfenced([^>]*)>((?:(?!<mfenced\b|</mfenced>).)*)</mfenced>", re.S)
+BAR = '<mo lspace="0.1em" rspace="0.1em" stretchy="false">|</mo>'
+
+
+def children(s):
+    """Éléments de premier niveau d'un fragment MathML."""
+    kids, depth, start = [], 0, 0
+    for t in re.finditer(r"<(/?)([a-zA-Z][\w:-]*)[^>]*?(/?)>", s):
+        if t.group(1):
+            depth -= 1
+            if depth == 0:
+                kids.append(s[start:t.end()])
+        elif t.group(3):
+            if depth == 0:
+                kids.append(t.group(0))
+        else:
+            if depth == 0:
+                start = t.start()
+            depth += 1
+    return kids
+
+
+def unfence(m):
+    attrs = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+    seps = attrs.get("separators", ",").replace(" ", "")
+    body = ""
+    for i, kid in enumerate(children(m.group(2))):
+        if i and seps:
+            body += f"<mo>{seps[min(i - 1, len(seps) - 1)]}</mo>"
+        body += kid
+    fence = lambda c: f"<mo>{c}</mo>" if c else ""  # noqa: E731
+    return f'<mrow>{fence(attrs.get("open", "("))}{body}{fence(attrs.get("close", ")"))}</mrow>'
+
+
+def math_core(html):
+    """MathML compatible avec Chrome : mfenced -> mo, menclose (barre de P(A | B)) -> mo « | »."""
+    while True:
+        new = FENCED.sub(unfence, html)
+        if new == html:
+            break
+        html = new
+    html = re.sub(r'<menclose notation="left">(.*?)</menclose>', rf"<mrow>{BAR}\1</mrow>", html, flags=re.S)
+    html = re.sub(r'<menclose notation="right">(.*?)</menclose>', rf"<mrow>\1{BAR}</mrow>", html, flags=re.S)
+    # « 4 . 3² » : la partie décimale est dans le msup
+    html = re.sub(r"<mn>\s*(\d+)\s*</mn>\s*<mo>\s*\.\s*</mo>\s*<msup>\s*<mn>\s*(\d+)\s*</mn>", r"<msup><mn>\1.\2</mn>", html)
+    return fix_math(html)
 
 
 def compact(html):
     html = re.sub(r"<!--.*?-->", "", html or "", flags=re.S)
     html = re.sub(r"\s+", " ", html)
-    return re.sub(r">\s+<", "> <", html).strip()
+    return math_core(re.sub(r">\s+<", "> <", html).strip())
 
 
 def main(path):

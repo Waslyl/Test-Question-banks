@@ -431,7 +431,7 @@ Array.prototype.forEach.call(document.querySelectorAll("math mi"), function (mi)
       cur.body.removeChild(blk);
       var last = cur.body.lastElementChild;
       var q = blk.getAttribute("data-q");
-      var continues = kind === "p2" && q && last && last.getAttribute("data-q") === q;
+      var continues = q && last && last.getAttribute("data-q") === q;
       if (continues) cur.el.querySelector(".ftr .note").textContent = "(This question continues on the following page)";
       newPage(kind);
       if (continues) {
@@ -477,9 +477,9 @@ def shell(ctx, title, inner):
 
 
 def cover(ctx, kind_label, instructions, duration):
-    return f"""<section class="page cover">{BRAND}
+    return f"""<section class="page cover">{ctx.get('brand', BRAND)}
 <div class="inner">
-  <h1>Physics<br>{ctx.get('level', 'Standard and higher level')}<br>{kind_label}<br>{ctx['title']}</h1>
+  <h1>{ctx.get('subject', 'Physics')}<br>{ctx.get('level', 'Standard and higher level')}<br>{kind_label}<br>{ctx['title']}</h1>
   <div class="date">{ctx['date']}</div>
   <div class="zones"><b>W4ss Academy</b> {ctx.get('series', 'practice test')} {ctx['number']}<span class="sep"></span><b>Topic</b> {ctx['title']}<span class="sep"></span><b>Ref.</b> {ctx['code']}</div>
   <div class="row"><div class="duration">{duration}</div>
@@ -492,13 +492,16 @@ def cover(ctx, kind_label, instructions, duration):
 <div class="site">Online revision: {ctx['site']}</div>{BAND}</section>"""
 
 
-def sources_page(sources, extra=""):
+SOURCES_INTRO = """This practice test was put together by W4ss Academy for internal class use. The questions are taken from the
+IB DP Physics Questionbank (first assessment 2025), topic B.3 Gas laws. They remain the property of the
+International Baccalaureate Organization and must not be published or sold."""
+
+
+def sources_page(sources, extra="", intro=SOURCES_INTRO):
     src_rows = "".join(f"<tr><td>{htmlmod.escape(a)}</td><td>{htmlmod.escape(b)}</td></tr>" for a, b in sources)
     return f"""<section class="page sources"><div class="hdr"><span class="pn"></span><span class="code"></span></div>
 <div class="body"><h2>Sources of the questions</h2>
-<p>This practice test was put together by W4ss Academy for internal class use. The questions are taken from the
-IB DP Physics Questionbank (first assessment 2025), topic B.3 Gas laws. They remain the property of the
-International Baccalaureate Organization and must not be published or sold.</p>{extra}
+<p>{intro}</p>{extra}
 <table>{src_rows}</table></div></section>"""
 
 

@@ -23,6 +23,25 @@ python3 scripts/build_maths.py Maths_AA_SL_Topic_4_questions.json   # produit da
 python3 scripts/stamp_versions.py
 ```
 
+Le script réécrit aussi le MathML de la source que Chrome n'affiche plus : `<mfenced>` (les parenthèses de P(A ∩ B) disparaissaient) et `<menclose>` (la barre de P(A | B)). Il recolle les nombres décimaux coupés en morceaux (« 0 . 25 » → « 0.25 »).
+
+### Sujets W4ss Academy de 30 minutes sur 4.1 à 4.6 (PDF)
+
+Deux sujets au format des papers de Maths AA SL : couverture, section A (questions courtes, cadres de réponse), section B (question longue, à rédiger sur les pages lignées à la fin du sujet) et page des sources. Chaque sujet a son markscheme.
+
+| Sujet | Référence | Questions | Points | Fichiers (`exams/`) |
+|---|---|---|---|---|
+| Paper 1 (sans calculatrice) | W4SS–MAA–T4–P1–01 | 19N.1.SL.TZ0.S_2 (4.6 diagramme de Venn), 21N.1.SL.TZ0.4 (4.5, 4.6 arbre, indépendance), 21M.1.SL.TZ2.7 (4.2 fréquences cumulées, 4.3 médiane, 4.1 échantillonnage) | 25 | `W4ss_Academy_Maths_AA_T4_Paper1.pdf` + `_Markscheme` |
+| Paper 2 (calculatrice) | W4SS–MAA–T4–P2–01 | EXN.2.SL.TZ0.1 (4.3 moyenne), 22M.2.SL.TZ1.2 (4.3 médiane, écart type), 21M.2.SL.TZ2.4 (4.6 probabilités, indépendance), EXM.2.SL.TZ0.1 (a) à (d) (4.1 échantillonnage, 4.4 corrélation) | 27 | `W4ss_Academy_Maths_AA_T4_Paper2.pdf` + `_Markscheme` |
+
+La durée suit le rythme des vrais sujets (90 minutes pour 80 points). La partie (e) de EXM.2.SL.TZ0.1 est écartée : elle demande la droite de régression de t en s, c'est-à-dire de x en y (4.10). Les questions retenues et leurs sous-thèmes sont dans `PAPERS`, en haut de `scripts/build_maths_exam.py`. Pour régénérer :
+
+```bash
+python3 scripts/build_maths_exam.py            # ou : python3 scripts/build_maths_exam.py p2
+node scripts/print_pdf.cjs exams/w4ss-maa-t4-p2.html exams/W4ss_Academy_Maths_AA_T4_Paper2.pdf
+node scripts/print_pdf.cjs exams/w4ss-maa-t4-p2-markscheme.html exams/W4ss_Academy_Maths_AA_T4_Paper2_Markscheme.pdf
+```
+
 ## Physics — fonctionnalités
 
 - Onglets **Paper 1A** / **Paper 2**
