@@ -27,7 +27,7 @@ from datetime import date
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_exam import (BRAND, CSS, OUT, PAGINATE, ROOT, SITE, clean, cover, load_js,  # noqa: E402
                         sources_page)
-from maths_t2_solutions import FIGURES, REDRAWN, SOLUTIONS  # noqa: E402
+from maths_t2_solutions import REDRAWN  # noqa: E402
 
 TITLE = "4.1–4.6 Statistics and probability"
 # données : t4 = data/maths-t4.js (avec markschemes), t2 = data/maths-t2.js (corrigés W4ss dans maths_t2_solutions.py)
@@ -273,24 +273,11 @@ def answer_pages(n, marks):
 
 
 def prepare(e, opts):
-    """Copie de la question avec les corrigés W4ss (topic 2), les figures redessinées et la renumérotation."""
+    """Copie de la question avec la renumérotation des parties. Les corrigés W4ss et les figures redessinées
+    du topic 2 sont déjà dans data/maths-t2.js (build_maths_t2.py)."""
     e = copy.deepcopy(e)
-    figures = FIGURES.get(e["id"], {})
-    used = set()
-
-    def figure(h):
-        for alt, svg in figures.items():
-            h, count = re.subn(rf'<img[^>]*alt="{re.escape(alt)}"[^>]*>', svg, h)
-            used.update([alt] if count else [])
-        return h
-    for ctx_ in e["contexts"]:
-        ctx_["html"] = figure(ctx_["html"])
     for p in e["parts"]:
-        p["q"] = figure(p["q"])
-        if not p["ms"]:
-            p["ms"] = SOLUTIONS.get(e["id"], {}).get(p["label"], "")
         p["label"] = opts.get("relabel", {}).get(p["label"], p["label"])
-    assert used == set(figures), f"{e['id']} : figures non placées {set(figures) - used}"
     return e
 
 

@@ -5,18 +5,19 @@ Site statique de révision. La page d'accueil (`index.html`) propose deux matiè
 | Bouton | Page | Contenu |
 |---|---|---|
 | Physics | `physics.html` | DP Physics (première évaluation 2025) : Paper 1A (QCM) et Paper 2, classés par thème et sous-thème (A.1 → E.5, Tools, Inquiry) |
-| Maths | `maths.html` | Maths AA SL, Topic 4 Statistics and probability : 89 exercices de Paper 1 et Paper 2 |
+| Maths | `maths.html` | Maths AA SL, Topic 2 Functions (16 questions, 2.1 à 2.5) et Topic 4 Statistics and probability (89 exercices) : Paper 1 et Paper 2 |
 
 Les anciens liens vers la Questionbank de physique (`index.html#p1a?...`) redirigent automatiquement vers `physics.html`.
 
-## Maths AA SL — Topic 4
+## Maths AA SL — Topics 2 et 4
 
+- Filtre par topic : **Tous les topics / Topic 2 Functions / Topic 4 Statistics and probability**. Pour le topic 2, un menu permet aussi de choisir un sous-thème (2.1 à 2.5). Chaque carte porte son topic et, pour le topic 2, ses sous-thèmes.
 - Onglets **Tous / Paper 1** (sans calculatrice) **/ Paper 2** (calculatrice)
 - Filtres : Section A (questions courtes 1 à 6) ou B (questions longues 7 à 9), session, recherche (texte ou référence)
 - Chaque exercice affiche ses textes de contexte au moment où une partie en a besoin. Chaque partie a son markscheme et, quand il existe, le rapport des examinateurs. Une case permet d'afficher tous les markschemes.
 - Les questions de l'ancien programme Mathematics SL (préfixe `S_`) sont signalées par une étiquette « ancien programme ». Celles dont l'énoncé commun manque dans la source portent un avertissement.
 
-Le fichier source ne précise pas le sous-thème (4.1, 4.2…) de chaque question : les exercices sont donc classés par paper, section et session, sans deviner de sous-thème. Pour mettre à jour les données :
+Le fichier du topic 4 ne précise pas le sous-thème (4.1, 4.2…) de chaque question : ses exercices sont classés par paper, section et session, sans deviner de sous-thème. Pour mettre à jour les données du topic 4 :
 
 ```bash
 python3 scripts/build_maths.py Maths_AA_SL_Topic_4_questions.json   # produit data/maths-t4.js
@@ -46,7 +47,7 @@ node scripts/print_pdf.cjs exams/w4ss-maa-t4-p2-markscheme.html exams/W4ss_Acade
 
 ### Topic 2 Functions, 2.1 à 2.5 : sujets W4ss Academy (PDF)
 
-L'export `IB_Maths_SL_2_1_to_2_5_questions.json` contient 16 questions classées en 2.1 à 2.5, sans markscheme. Il est converti dans le même format que le topic 4 :
+L'export `IB_Maths_SL_2_1_to_2_5_questions.json` contient 16 questions classées en 2.1 à 2.5, sans markscheme. Il est converti dans le même format que le topic 4, et `maths.html` charge les deux fichiers. Sur le site, les parties qui ont un corrigé W4ss affichent un bouton « Corrigé W4ss » à la place de « Markscheme ». L'export ne donne ni la section ni la date : la section vient du barème (B à partir de 12 points), la date de la référence.
 
 ```bash
 python3 scripts/build_maths_t2.py IB_Maths_SL_2_1_to_2_5_questions.json   # produit data/maths-t2.js

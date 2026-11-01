@@ -10,6 +10,13 @@ body.maths .paper-tabs button.active { color: #4a2a10; }
 .chip.paper-2 { background: #e3f1fb; color: #155a8a; }
 .chip.sec { background: #edeaf9; color: #4b3a99; }
 .chip.legacy { background: #f1f1f1; color: #666; }
+.chip.topic-2 { background: #e2f3ea; color: #1d6b45; font-weight: 600; }
+.chip.topic-4 { background: #fbeedd; color: #8a4b0f; font-weight: 600; }
+.chip.subt { background: #eef7f2; color: #2c6b4c; }
+.topic-filters { margin-bottom: 12px; }
+.topic-filters select { min-width: 0; max-width: 100%; }
+.fig-missing { color: #8a5a00; font-style: italic; }
+.qhtml svg.mgraph { display: block; margin: 10px auto; max-width: 100%; height: auto; }
 .q-note { margin: 12px 18px 0; font-size: 13px; color: #8a5a00; background: #fdf3e1; border-radius: 6px; padding: 6px 10px; }
 
 .m-context { padding: 2px 0 6px; }
@@ -38,4 +45,8 @@ body.maths .paper-tabs button.active { color: #4a2a10; }
   body.maths .home-link { margin-left: auto; }
   body.maths .paper-tabs { order: 3; width: 100%; margin-left: 0; justify-content: space-between; }
   body.maths .paper-tabs button { flex: 1; }
+  #topicSeg { width: 100%; }
+  #topicSeg button { flex: 1; padding: 7px 6px; }
+  #topicSeg button small { display: block; font-size: 11px; }
+  .topic-filters select { width: 100%; }
 }

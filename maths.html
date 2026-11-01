@@ -6,7 +6,7 @@
   <title>Maths Questionbank</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%236b3a12%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-size=%2218%22 font-family=%22Arial%22 font-weight=%22700%22 fill=%22%23fff%22 text-anchor=%22middle%22%3E%E2%88%91%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="assets/style.css?v=7c4cb034">
-  <link rel="stylesheet" href="assets/maths.css?v=83d03ddb">
+  <link rel="stylesheet" href="assets/maths.css?v=f4d11cb5">
 </head>
 <body class="maths">
   <header class="topbar">
@@ -14,7 +14,7 @@
       <span class="brand-mark">∑</span>
       <div>
         <div class="brand-title">Maths Questionbank</div>
-        <div class="brand-sub">Maths AA SL · Topic 4 Statistics and probability</div>
+        <div class="brand-sub">Maths AA SL · Topics 2 et 4</div>
       </div>
     </div>
     <a class="home-link" href="index.html" title="Retour à l'accueil" aria-label="Retour à l'accueil">←<span class="home-text"> Accueil</span></a>
@@ -27,6 +27,14 @@
 
   <main class="maths-main">
     <div class="crumbs" id="crumbs"></div>
+    <section class="filters topic-filters">
+      <div class="seg" id="topicSeg">
+        <button data-topic="" class="active">Tous les topics</button>
+        <button data-topic="2">Topic 2 <small>Functions</small></button>
+        <button data-topic="4">Topic 4 <small>Statistics and probability</small></button>
+      </div>
+      <select id="subtopic" class="hidden" aria-label="Sous-thème du topic 2"><option value="">Tous les sous-thèmes (2.1 à 2.5)</option></select>
+    </section>
     <section class="filters">
       <input type="search" id="search" placeholder="Rechercher (texte ou référence, ex. 21M.2.SL.TZ1.7)…">
       <div class="seg" id="sectionSeg">
@@ -42,7 +50,8 @@
     <div class="more-wrap"><button id="more" class="more">Afficher plus</button></div>
   </main>
 
+  <script src="data/maths-t2.js?v=b8afc653"></script>
   <script src="data/maths-t4.js?v=891eda57"></script>
-  <script src="assets/maths.js?v=85661d78"></script>
+  <script src="assets/maths.js?v=a52ee3f5"></script>
 </body>
 </html>

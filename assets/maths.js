@@ -2,8 +2,15 @@
   "use strict";
 
   var PAGE = 12;
-  var DATA = (window.QB_MATHS && window.QB_MATHS.exercises) || [];
-  var state = { paper: "", section: "", session: "", search: "", allMs: false, shown: PAGE };
+  // Topic 2 (data/maths-t2.js) puis Topic 4 (data/maths-t4.js)
+  function withTopic(src, topic) {
+    return ((src && src.exercises) || []).map(function (e) { e.topic = topic; return e; });
+  }
+  var DATA = withTopic(window.QB_MATHS_T2, 2).concat(withTopic(window.QB_MATHS, 4));
+  var SUBTOPICS = (window.QB_MATHS_T2 && window.QB_MATHS_T2.topic.subtopics) || [];
+  var TOPICS = { 2: "Functions", 4: "Statistics and probability" };
+  var LEGACY = { S_: "Mathematics SL", T_: "Mathematical studies SL", H_: "Mathematics HL" };
+  var state = { topic: "", subtopic: "", paper: "", section: "", session: "", search: "", allMs: false, shown: PAGE };
   var filtered = [];
   var $ = function (id) { return document.getElementById(id); };
 
@@ -35,7 +42,13 @@
     return e._t;
   }
 
+  function marksOf(e) {
+    return e.parts.reduce(function (n, p) { return n + (p.marks || 0); }, 0);
+  }
+
   function visible(e) {
+    if (state.topic && String(e.topic) !== state.topic) return false;
+    if (state.subtopic && (e.subtopics || []).indexOf(state.subtopic) === -1) return false;
     if (state.paper && String(e.paper) !== state.paper) return false;
     if (state.section && e.section !== state.section) return false;
     if (state.session && e.session !== state.session) return false;
@@ -43,8 +56,9 @@
     return !s || plain(e).indexOf(s) !== -1 || e.id.toLowerCase().indexOf(s) !== -1;
   }
 
-  function panel(kind, html, open) {
-    var title = kind === "ms" ? "Markscheme" : "Rapport des examinateurs";
+  function panel(kind, html, open, src) {
+    var title = kind === "er" ? "Rapport des examinateurs"
+      : src ? "Corrigé rédigé par " + esc(src) + " (pas de markscheme officiel dans la source)" : "Markscheme";
     return '<div class="panel ' + kind + " qhtml" + (open ? "" : " hidden") + '"><h4>' + title + "</h4>" + html + "</div>";
   }
 
@@ -54,22 +68,29 @@
       return '<div class="m-part prompt"><div class="part-head">' + label + '<div class="part-body qhtml">' + p.q + "</div></div></div>";
     }
     return '<div class="m-part"><div class="part-head">' + label +
-      '<div class="part-body qhtml">' + p.q + '</div><span class="part-marks">[' + p.marks + "]</span></div>" +
-      '<div class="mini">' + (p.ms ? '<button class="toggle' + (state.allMs ? " on" : "") + '" data-panel="ms">Markscheme</button>' : "") +
+      '<div class="part-body qhtml">' + p.q + "</div>" + (p.marks ? '<span class="part-marks">[' + p.marks + "]</span>" : "") + "</div>" +
+      '<div class="mini">' + (p.ms ? '<button class="toggle' + (state.allMs ? " on" : "") + '" data-panel="ms">' +
+        (p.ms_src ? "Corrigé W4ss" : "Markscheme") + "</button>" : "") +
       (p.er ? '<button class="toggle" data-panel="er">Rapport des examinateurs</button>' : "") + "</div>" +
-      (p.ms ? panel("ms", p.ms, state.allMs) : "") + (p.er ? panel("er", p.er, false) : "") + "</div>";
+      (p.ms ? panel("ms", p.ms, state.allMs, p.ms_src) : "") + (p.er ? panel("er", p.er, false) : "") + "</div>";
   }
 
   function card(e) {
-    var marks = e.parts.reduce(function (n, p) { return n + p.marks; }, 0);
+    var marks = marksOf(e);
+    var unknown = e.parts.some(function (p) { return p.type !== "group_prompt" && !p.marks; });
+    // l'ancien programme Mathematical studies permettait la calculatrice au Paper 1
+    var calc = e.paper === 2 || e.legacy === "T_" ? " · calculatrice" : " · sans calculatrice";
     var head = '<div class="card-head"><span class="qid">' + esc(e.id) + "</span>" +
-      '<span class="chip">' + esc(sessionLabel(e)) + (e.tz !== "TZ0" ? " · " + e.tz : "") + "</span>" +
-      '<span class="chip paper-' + e.paper + '">Paper ' + e.paper + (e.paper === 1 ? " · sans calculatrice" : " · calculatrice") + "</span>" +
-      '<span class="chip sec">Section ' + e.section + "</span>" +
-      (e.legacy ? '<span class="chip legacy" title="Question de l\'ancien programme Mathematics SL">ancien programme</span>' : "") +
-      '<span class="marks">[' + marks + " points]</span></div>";
-    var note = e.context_status === "not_provided"
-      ? '<div class="q-note">L\'énoncé commun de cette question manque dans la source : certaines données peuvent manquer.</div>' : "";
+      '<span class="chip topic-' + e.topic + '">Topic ' + e.topic + "</span>" +
+      (e.subtopics || []).map(function (c) { return '<span class="chip subt">' + esc(c) + "</span>"; }).join("") +
+      '<span class="chip">' + esc(sessionLabel(e)) + (e.tz && e.tz !== "TZ0" ? " · " + e.tz : "") + "</span>" +
+      '<span class="chip paper-' + e.paper + '">Paper ' + e.paper + calc + "</span>" +
+      (e.section ? '<span class="chip sec">Section ' + e.section + "</span>" : "") +
+      (e.legacy ? '<span class="chip legacy" title="Question de l\'ancien programme ' + esc(LEGACY[e.legacy] || "") + '">ancien programme</span>' : "") +
+      '<span class="marks">' + (unknown ? "[barème non indiqué]" : "[" + marks + " points]") + "</span></div>";
+    var notes = (e.notes || []).slice();
+    if (e.context_status === "not_provided") notes.push("L'énoncé commun de cette question manque dans la source : certaines données peuvent manquer.");
+    var note = notes.map(function (n) { return '<div class="q-note">' + esc(n) + "</div>"; }).join("");
     var shownCtx = {};
     var ctxById = {};
     e.contexts.forEach(function (c) { ctxById[c.id] = c; });
@@ -96,17 +117,31 @@
     filtered = DATA.filter(visible);
     state.shown = PAGE;
     var parts = filtered.reduce(function (n, e) { return n + e.parts.filter(function (p) { return p.type !== "group_prompt"; }).length; }, 0);
-    var marks = filtered.reduce(function (n, e) { return n + e.parts.reduce(function (m, p) { return m + p.marks; }, 0); }, 0);
+    var marks = filtered.reduce(function (n, e) { return n + marksOf(e); }, 0);
     $("stats").innerHTML = "<span><b>" + filtered.length + "</b> exercices · <b>" + parts + "</b> questions · <b>" + marks + "</b> points</span>";
     var paperName = { "": "Paper 1 et Paper 2", "1": "Paper 1 — sans calculatrice", "2": "Paper 2 — avec calculatrice" }[state.paper];
     var sectionName = { "": "", A: " · Section A (questions courtes)", B: " · Section B (questions longues)" }[state.section];
-    $("crumbs").innerHTML = "Topic 4 — Statistics and probability<small>" + paperName + sectionName + "</small>";
+    var sub = SUBTOPICS.filter(function (t) { return t.code === state.subtopic; })[0];
+    var topicName = state.topic ? "Topic " + state.topic + " — " + TOPICS[state.topic] + (sub ? " · " + sub.code + " " + sub.title : "")
+      : "Topic 2 Functions et Topic 4 Statistics and probability";
+    $("crumbs").innerHTML = esc(topicName) + "<small>" + paperName + sectionName + "</small>";
+    document.querySelectorAll("#topicSeg button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-topic") === state.topic); });
+    $("subtopic").classList.toggle("hidden", state.topic !== "2");
+    $("subtopic").value = state.subtopic;
     document.querySelectorAll("#paperTabs button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-paper") === state.paper); });
     document.querySelectorAll("#sectionSeg button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-section") === state.section); });
     renderList();
   }
 
   // ---------- Événements ----------
+  $("topicSeg").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-topic]");
+    if (!b) return;
+    state.topic = b.getAttribute("data-topic");
+    if (state.topic !== "2") state.subtopic = "";
+    render();
+  });
+  $("subtopic").addEventListener("change", function () { state.subtopic = this.value; render(); });
   $("paperTabs").addEventListener("click", function (ev) {
     var b = ev.target.closest("button[data-paper]");
     if (!b) return;
@@ -145,6 +180,9 @@
   });
 
   // ---------- Démarrage ----------
+  $("subtopic").innerHTML += SUBTOPICS.map(function (t) {
+    return '<option value="' + esc(t.code) + '">' + esc(t.code + " " + t.title) + "</option>";
+  }).join("");
   var seen = {};
   DATA.forEach(function (e) { seen[e.session] = e; });
   $("session").innerHTML += Object.keys(seen).sort(function (a, b) { return sessionOrder(a) - sessionOrder(b); })

@@ -67,7 +67,22 @@ N21_SKETCH = axes_grid((-2, 2), (-1, 1), 17, 17, 1, 0.5, 0.1, 0.1, curves=[sampl
                              (0.8326, 0, "0.833", 1.2, -1.4), (-2, n21(-2), "(−2, −0.482)", 1, 4),
                              (2, n21(2), "(2, −0.482)", -16, 4)])
 
+# 17M.1.SL.TZ2.T_4 : schéma (pas à l'échelle) de la droite L qui coupe l'axe des x en A et l'axe des y en B
+LINE_L = (
+    '<svg class="mgraph" viewBox="0 0 72 64" width="72mm" xmlns="http://www.w3.org/2000/svg" '
+    'font-family="Liberation Sans, Arial" font-size="4">'
+    '<line x1="6" y1="50" x2="64" y2="50" stroke="#111" stroke-width="0.4"/>'
+    '<path d="M67 50 l-3 -1.3 v2.6 z" fill="#111"/>'
+    '<line x1="14" y1="58" x2="14" y2="7" stroke="#111" stroke-width="0.4"/>'
+    '<path d="M14 4 l-1.3 3 h2.6 z" fill="#111"/>'
+    '<line x1="8.5" y1="5" x2="40.5" y2="60" stroke="#111" stroke-width="0.55"/>'
+    '<text x="66" y="55" font-style="italic">x</text><text x="16" y="6" font-style="italic">y</text>'
+    '<text x="9" y="55">O</text><text x="35.5" y="48">A</text><text x="16" y="15.5">B</text>'
+    '<text x="41" y="58" font-style="italic">L</text>'
+    '<text x="70" y="12" font-size="3.2" text-anchor="end">diagram not to scale</text></svg>')
+
 FIGURES = {
+    "17M.1.SL.TZ2.T_4": {"M17/5/MATSD/SP1/ENG/TZ2/04": LINE_L},
     "17M.1.SL.TZ1.T_12": {"M17/5/MATSD/SP1/ENG/TZ1/12": t12_graph(5)},
     "17M.2.SL.TZ2.S_6": {"M17/5/MATME/SP2/ENG/TZ2/06.b": s6_grid(40, 8)},
 }
