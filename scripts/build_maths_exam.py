@@ -2,7 +2,7 @@
 """Sujets d'entraînement W4ss Academy de Maths AA SL : Paper 1 et Paper 2 de 30 minutes sur 4.1 à 4.6.
 
 Usage :
-    python3 scripts/build_maths_exam.py            # tous les sujets (ou ajouter le nom : p1, p2, p1-2, p2-2)
+    python3 scripts/build_maths_exam.py            # tous les sujets (ou ajouter le nom : p1, p2, p1-2, p2-2, t2-p1, t2-p2)
     node scripts/print_pdf.cjs exams/w4ss-maa-t4-p1.html exams/W4ss_Academy_Maths_AA_T4_Paper1.pdf
     node scripts/print_pdf.cjs exams/w4ss-maa-t4-p1-markscheme.html exams/W4ss_Academy_Maths_AA_T4_Paper1_Markscheme.pdf
 
@@ -16,6 +16,7 @@ Les parties hors de 4.1 à 4.6 sont écartées (ex. droite de régression de x e
 Les sujets du jeu 2 n'ont pas de section B : seulement des questions courtes avec cadres de réponse.
 """
 import base64
+import copy
 import html as htmlmod
 import math
 import os
@@ -26,11 +27,24 @@ from datetime import date
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_exam import (BRAND, CSS, OUT, PAGINATE, ROOT, SITE, clean, cover, load_js,  # noqa: E402
                         sources_page)
+from maths_t2_solutions import FIGURES, REDRAWN, SOLUTIONS  # noqa: E402
 
 TITLE = "4.1–4.6 Statistics and probability"
+# données : t4 = data/maths-t4.js (avec markschemes), t2 = data/maths-t2.js (corrigés W4ss dans maths_t2_solutions.py)
+TOPICS = {
+    "t4": dict(file="maths-t4.js", title=TITLE, label="4.1–4.6",
+               intro="topic 4 Statistics and probability) and cover subtopics 4.1 to 4.6"),
+    "t2": dict(file="maths-t2.js", title="2.1–2.5 Functions", label="2.1–2.5",
+               intro="topic 2 Functions) and cover subtopics 2.1 to 2.5. Some of them come from former courses "
+                     "(Mathematics SL and HL, Mathematical studies SL)"),
+}
+LEGACY = {"S_": "former Mathematics SL course", "T_": "former Mathematical studies SL course",
+          "H_": "former Mathematics HL course"}
 
-# (référence, parties retenues ou None pour toutes, sous-thèmes). Aucune question ne sert dans deux sujets.
-# Les sujets du jeu 2 n'ont pas de section B.
+# (référence, parties retenues ou None pour toutes, sous-thèmes[, options]). Aucune question ne sert dans deux
+# sujets. Les sujets du jeu 2 (topic 4) et ceux du topic 2 n'ont pas de section B.
+# Options : relabel = nouvelle numérotation des parties ; gdc = question de Paper 1 de Mathematical studies
+# (calculatrice autorisée) placée dans un Paper 2.
 PAPERS = {
     "p1": dict(
         paper=1, set=1, code="W4SS–MAA–T4–P1–01", html="w4ss-maa-t4-p1", minutes=30,
@@ -65,6 +79,26 @@ PAPERS = {
            ("22M.2.SL.TZ2.4", None, "4.6 independent events, combined events")],
         B=[],
     ),
+    "t2-p1": dict(
+        data="t2", paper=1, set=1, code="W4SS–MAA–T2–P1–01", html="w4ss-maa-t2-p1", minutes=30,
+        A=[("22M.1.SL.TZ2.1", None, "2.5 composite functions from a table"),
+           ("22M.1.SL.TZ1.1", None, "2.1 gradient, perpendicular lines, equation of a line"),
+           ("17M.1.SL.TZ1.T_12", None, "2.2, 2.4 reading a graph, number of solutions of f(x) = k — parts (b) and "
+            "(c) of the original, relabelled (a) and (b): part (a) is not in the source",
+            {"relabel": {"b.i": "a.i", "b.ii": "a.ii", "c": "b"}}),
+           ("SPM.1.SL.TZ0.5", None, "2.5 composite function and its inverse"),
+           ("17M.1.AHL.TZ2.H_2", None, "2.2 range · 2.5 inverse function, its domain and range")],
+        B=[],
+    ),
+    "t2-p2": dict(
+        data="t2", paper=2, set=1, code="W4SS–MAA–T2–P2–01", html="w4ss-maa-t2-p2", minutes=30,
+        A=[("21N.2.SL.TZ0.2", None, "2.3 sketching a graph · 2.4 zeros"),
+           ("20N.1.SL.TZ0.T_4", None, "2.4 zero, local minimum, intersection using technology — "
+            "Mathematical studies Paper 1, where a calculator was allowed", {"gdc": True}),
+           ("21M.2.SL.TZ2.5", None, "2.2 range · 2.5 composite function"),
+           ("17M.2.SL.TZ2.S_6", None, "2.5 composite function · 2.3 sketching · 2.4 number of solutions")],
+        B=[],
+    ),
 }
 
 SUBJECT = "Mathematics: analysis and approaches"
@@ -86,7 +120,7 @@ MATHS_CSS = """
 .advice { margin: 0 0 7mm; }
 .sec-title { font-weight: 700; font-size: 11.5pt; text-align: center; margin: 0 0 4mm; }
 .qbody .stem p, .part-context p { margin: 0 0 3mm; }
-.part-context img, .qbody img { max-width: 100%; height: auto; display: block; margin: 2mm auto 3mm; }
+.part-context img, .qbody img, .part-text img { max-width: 100%; height: auto; display: block; margin: 2mm auto 3mm; }
 .qn + .part, .part-context + .part { margin-top: 2mm; }
 .blk[data-kind="p2"], .blk[data-kind="secb"] { padding-bottom: 3mm; }
 /* cadre de réponse de la section A : une ligne par bloc, pour qu'il puisse continuer sur la page suivante */
@@ -106,6 +140,8 @@ MATHS_CSS = """
 .lined .answer-box { border: 0; padding: 0; }
 .ms-item h2.next { margin-top: 8mm; }
 .ms-item .ms-html img { max-width: 80mm; height: auto; display: block; margin: 1mm 0; }
+svg.mgraph { display: block; margin: 2mm auto 3mm; max-width: 100%; height: auto; }
+.ms-item .ms-html svg.mgraph { margin: 1mm 0 2mm; }
 """
 
 # pages de la section B : « Do not write solutions on this page. », comme dans les sujets
@@ -236,25 +272,54 @@ def answer_pages(n, marks):
     return pages
 
 
-def build(name, by_id):
+def prepare(e, opts):
+    """Copie de la question avec les corrigés W4ss (topic 2), les figures redessinées et la renumérotation."""
+    e = copy.deepcopy(e)
+    figures = FIGURES.get(e["id"], {})
+    used = set()
+
+    def figure(h):
+        for alt, svg in figures.items():
+            h, count = re.subn(rf'<img[^>]*alt="{re.escape(alt)}"[^>]*>', svg, h)
+            used.update([alt] if count else [])
+        return h
+    for ctx_ in e["contexts"]:
+        ctx_["html"] = figure(ctx_["html"])
+    for p in e["parts"]:
+        p["q"] = figure(p["q"])
+        if not p["ms"]:
+            p["ms"] = SOLUTIONS.get(e["id"], {}).get(p["label"], "")
+        p["label"] = opts.get("relabel", {}).get(p["label"], p["label"])
+    assert used == set(figures), f"{e['id']} : figures non placées {set(figures) - used}"
+    return e
+
+
+def build(name, datasets):
     paper = PAPERS[name]
     num = paper["paper"]
+    topic = TOPICS[paper.get("data", "t4")]
+    by_id = datasets[paper.get("data", "t4")]
     sec_blocks, ms_rows, sources, lined = {"A": [], "B": []}, {"A": [], "B": []}, [], []
     total = 0
     n = 0
     for section in ("A", "B"):
         kind = "p2" if section == "A" else "secb"
-        for qid, labels, topics in paper[section]:
+        for spec in paper[section]:
+            qid, labels, topics = spec[:3]
+            opts = spec[3] if len(spec) > 3 else {}
             n += 1
-            e = by_id[qid]
-            assert e["paper"] == num, f"{qid} n'est pas une question de Paper {num}"
+            e = prepare(by_id[qid], opts)
+            assert e["paper"] == num or opts.get("gdc"), f"{qid} n'est pas une question de Paper {num}"
+            chosen = [p for p in e["parts"] if labels is None or p["label"] in labels]
+            assert all(p["ms"] and p["marks"] for p in chosen), f"{qid} : barème ou corrigé manquant"
             blocks, ms, marks = question(n, e, labels, kind)
             sec_blocks[section] += blocks
             ms_rows[section] += ms
             total += marks
             if section == "B":
                 lined += answer_pages(n, marks)
-            old = " (former Mathematics SL course)" if e["legacy"] else ""
+            old = f" ({LEGACY[e['legacy']]})" if e["legacy"] else ""
+            topics += f" — {REDRAWN[qid]}" if qid in REDRAWN else ""
             part_note = ("" if labels is None else f", part {display_label(labels[0])}" if len(labels) == 1
                          else f", parts {display_label(labels[0])} to {display_label(labels[-1])}")
             sources.append((f"Section {section} — question {n}", f"{qid}{old}{part_note} · {topics}"))
@@ -272,7 +337,7 @@ def build(name, by_id):
             'answer pages at the end of this paper. Please start each question on a new page.</p><div class="qn">', 1)
 
     today = date.today()
-    ctx = dict(code=paper["code"], number=paper["set"], series="practice set", title=TITLE, site=SITE, level="Standard level",
+    ctx = dict(code=paper["code"], number=paper["set"], series="practice set", title=topic["title"], site=SITE, level="Standard level",
                subject=SUBJECT, brand=BRAND.replace("DP Physics · 2025 syllabus", "DP Mathematics AA · SL"),
                date=f"{today.day} {today.strftime('%B %Y')}", year=today.year)
     calculator = ("You are <b>not</b> permitted access to any calculator for this paper." if num == 1
@@ -291,9 +356,9 @@ def build(name, by_id):
         f"The maximum mark for this examination paper is <b>[{total} marks]</b>.",
     ]
     intro = ("This practice paper was put together by W4ss Academy for internal class use. The questions are taken "
-             "from the IB DP Mathematics: analysis and approaches Questionbank (standard level, topic 4 Statistics "
-             "and probability) and cover subtopics 4.1 to 4.6. They remain the property of the International "
-             "Baccalaureate Organization and must not be published or sold.")
+             f"from the IB DP Mathematics: analysis and approaches Questionbank (standard level, {topic['intro']}. "
+             "They remain the property of the International Baccalaureate Organization and must not be published "
+             "or sold.")
     test = (cover(ctx, f"Paper {num}", instructions, f"{paper['minutes']} minutes") + "".join(a) + "".join(b)
             + "".join(lined) + sources_page(sources, intro=intro))
 
@@ -317,12 +382,15 @@ def build(name, by_id):
         "<b>R</b>: reasoning marks. <b>N</b> (former course): marks for a correct answer with no working.",
         "Marks in brackets, e.g. <b>(M1)</b>, can be implied by correct working that follows. <b>AG</b>: answer given "
         "in the question, no mark for it. <b>FT</b>: follow through from an earlier error.",
+        *(["The question export used for this paper has no official markscheme: these solutions were written by "
+           "W4ss Academy in the IB style. Accept any correct equivalent method."] if topic is TOPICS["t2"] else []),
         f"Total: <b>[{total} marks]</b>.",
     ]
     markscheme = cover(ctx, f"Paper {num} — markscheme", ms_instructions, f"Paper {num}") + "".join(ms_blocks)
 
     os.makedirs(OUT, exist_ok=True)
-    pages = {f"{paper['html']}.html": shell(ctx, f"W4ss Academy — Maths AA SL Paper {num} (4.1–4.6)", test),
+    assert 'src="http' not in test, "image distante dans le sujet"
+    pages = {f"{paper['html']}.html": shell(ctx, f"W4ss Academy — Maths AA SL Paper {num} ({topic['label']})", test),
              f"{paper['html']}-markscheme.html": shell(ctx, f"W4ss Academy — Maths AA SL Paper {num} markscheme", markscheme)}
     for fname, content in pages.items():
         with open(os.path.join(OUT, fname), "w", encoding="utf-8") as f:
@@ -334,7 +402,7 @@ def build(name, by_id):
 def check_no_overlap():
     seen = {}
     for name, paper in PAPERS.items():
-        for qid, _, _ in paper["A"] + paper["B"]:
+        for qid in (spec[0] for spec in paper["A"] + paper["B"]):
             if qid in seen:
                 sys.exit(f"{qid} est à la fois dans {seen[qid]} et dans {name}")
             seen[qid] = name
@@ -342,7 +410,7 @@ def check_no_overlap():
 
 if __name__ == "__main__":
     check_no_overlap()
-    data = load_js(os.path.join(ROOT, "data", "maths-t4.js"))
-    by_id = {e["id"]: e for e in data["exercises"]}
+    datasets = {key: {e["id"]: e for e in load_js(os.path.join(ROOT, "data", t["file"]))["exercises"]}
+                for key, t in TOPICS.items()}
     for name in (sys.argv[1:] or sorted(PAPERS)):
-        build(name, by_id)
+        build(name, datasets)

@@ -23,7 +23,7 @@ python3 scripts/build_maths.py Maths_AA_SL_Topic_4_questions.json   # produit da
 python3 scripts/stamp_versions.py
 ```
 
-Le script réécrit aussi le MathML de la source que Chrome n'affiche plus : `<mfenced>` (les parenthèses de P(A ∩ B) disparaissaient) et `<menclose>` (la barre de P(A | B)). Il recolle les nombres décimaux coupés en morceaux (« 0 . 25 » → « 0.25 ») et remet à la bonne taille le prime de A′.
+Le script réécrit aussi le MathML de la source que Chrome n'affiche plus : `<mfenced>` (les parenthèses de P(A ∩ B) disparaissaient) et `<menclose>` (la barre de P(A | B)). Il recolle les nombres décimaux coupés en morceaux (« 0 . 25 » → « 0.25 »), remet à la bonne taille le prime de A′ et supprime l'espace après un moins unaire (« (−2, −2) »).
 
 ### Sujets W4ss Academy de 30 minutes sur 4.1 à 4.6 (PDF)
 
@@ -42,6 +42,30 @@ La durée suit le rythme des vrais sujets (90 minutes pour 80 points). Deux part
 python3 scripts/build_maths_exam.py            # ou un seul sujet : p1, p2, p1-2, p2-2
 node scripts/print_pdf.cjs exams/w4ss-maa-t4-p2.html exams/W4ss_Academy_Maths_AA_T4_Paper2.pdf
 node scripts/print_pdf.cjs exams/w4ss-maa-t4-p2-markscheme.html exams/W4ss_Academy_Maths_AA_T4_Paper2_Markscheme.pdf
+```
+
+### Topic 2 Functions, 2.1 à 2.5 : sujets W4ss Academy (PDF)
+
+L'export `IB_Maths_SL_2_1_to_2_5_questions.json` contient 16 questions classées en 2.1 à 2.5, sans markscheme. Il est converti dans le même format que le topic 4 :
+
+```bash
+python3 scripts/build_maths_t2.py IB_Maths_SL_2_1_to_2_5_questions.json   # produit data/maths-t2.js
+```
+
+Deux sujets de 30 minutes, section A seule :
+
+| Sujet | Référence | Questions | Points | Fichiers (`exams/`) |
+|---|---|---|---|---|
+| Paper 1 (sans calculatrice) | W4SS–MAA–T2–P1–01 | 22M.1.SL.TZ2.1 (2.5 composées, tableau), 22M.1.SL.TZ1.1 (2.1 droites perpendiculaires), 17M.1.SL.TZ1.T_12 (2.2, 2.4 lecture graphique), SPM.1.SL.TZ0.5 (2.5 composée et réciproque), 17M.1.AHL.TZ2.H_2 (2.2, 2.5 ensemble image, réciproque) | 25 | `W4ss_Academy_Maths_AA_T2_Paper1.pdf` + `_Markscheme` |
+| Paper 2 (calculatrice) | W4SS–MAA–T2–P2–01 | 21N.2.SL.TZ0.2 (2.3 tracé, 2.4 zéros), 20N.1.SL.TZ0.T_4 (2.4 zéro, minimum, intersection), 21M.2.SL.TZ2.5 (2.2 ensemble image, 2.5 composée), 17M.2.SL.TZ2.S_6 (2.5 composée, 2.3 tracé, 2.4 nombre de solutions) | 25 | `W4ss_Academy_Maths_AA_T2_Paper2.pdf` + `_Markscheme` |
+
+- **Corrigés.** L'export n'en a pas : ils sont rédigés par W4ss Academy dans `scripts/maths_t2_solutions.py`, au format des markschemes de l'IB, avec en commentaire les calculs de vérification. La couverture du markscheme le signale.
+- **Figures.** Quand l'export ne donne qu'un lien vers une image, elle n'est pas téléchargée : la figure est redessinée à partir des données de l'énoncé (`FIGURES`, avec le module `scripts/maths_figures.py`), et la page des sources le précise. Par exemple, le graphe de 17M.1.SL.TZ1.T_12 est celui de f(x) = x + 2 + 4/x, la seule fonction de la forme ax + b + c/x qui a un maximum local en (−2, −2) et un minimum local en (2, 6).
+- **Anciens programmes.** 17M.1.SL.TZ1.T_12 n'a dans la source que les parties (b) et (c) : elles sont renumérotées (a) et (b). 20N.1.SL.TZ0.T_4 vient d'un Paper 1 de Mathematical studies, où la calculatrice était permise : elle est placée dans le Paper 2.
+
+```bash
+python3 scripts/build_maths_exam.py t2-p1 t2-p2
+node scripts/print_pdf.cjs exams/w4ss-maa-t2-p1.html exams/W4ss_Academy_Maths_AA_T2_Paper1.pdf
 ```
 
 ## Physics — fonctionnalités

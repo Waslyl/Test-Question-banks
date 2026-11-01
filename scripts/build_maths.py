@@ -69,7 +69,11 @@ def math_core(html):
     html = re.sub(r"<mo>\s*['′]\s*</mo>", '<mo lspace="0" rspace="0">′</mo>', html)
     # « 4 . 3² » : la partie décimale est dans le msup
     html = re.sub(r"<mn>\s*(\d+)\s*</mn>\s*<mo>\s*\.\s*</mo>\s*<msup>\s*<mn>\s*(\d+)\s*</mn>", r"<msup><mn>\1.\2</mn>", html)
-    return fix_math(html)
+    html = fix_math(html).replace("<mo>-</mo>", "<mo>−</mo>")
+    # moins unaire après « ( , = ≤ … » : sans espace, comme dans « (−2, −2) » ou « y = −6 »
+    return re.sub(r"(<mo[^>]*>\s*(?:[(\[,=≤≥⩽⩾×÷]|&lt;|&gt;)\s*</mo>\s*"
+                  r"(?:<mspace[^>]*></mspace>\s*|<mrow[^>]*>\s*<mtext>\s*</mtext>\s*</mrow>\s*)*)<mo>\s*−\s*</mo>",
+                  r'\1<mo lspace="0" rspace="0">−</mo>', html)
 
 
 def compact(html):
