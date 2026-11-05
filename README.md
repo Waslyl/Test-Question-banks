@@ -69,6 +69,16 @@ python3 scripts/build_maths_exam.py t2-p1 t2-p2
 node scripts/print_pdf.cjs exams/w4ss-maa-t2-p1.html exams/W4ss_Academy_Maths_AA_T2_Paper1.pdf
 ```
 
+### Test de la classe (QuestionBank Test)
+
+Le test exporté de la Questionbank (`QuestionBank_Test.pdf` et son corrigé) est mis en page comme les autres sujets : 3 questions courtes en section A, une question longue en section B, 24 points, Paper 1. Référence W4SS–MAA–QB–P1–01, fichiers `exams/W4ss_Academy_Maths_QuestionBank_Test.pdf` et `_Markscheme.pdf`.
+
+```bash
+python3 scripts/build_qbtest.py QuestionBank_Test.pdf     # produit data/maths-qbtest.js
+python3 scripts/build_maths_exam.py qb-p1
+node scripts/print_pdf.cjs exams/w4ss-maa-qbtest.html exams/W4ss_Academy_Maths_QuestionBank_Test.pdf
+```
+
 ## Physics — fonctionnalités
 
 - Onglets **Paper 1A** / **Paper 2**

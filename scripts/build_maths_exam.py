@@ -34,6 +34,9 @@ TITLE = "4.1–4.6 Statistics and probability"
 TOPICS = {
     "t4": dict(file="maths-t4.js", title=TITLE, label="4.1–4.6",
                intro="topic 4 Statistics and probability) and cover subtopics 4.1 to 4.6"),
+    "qb": dict(file="maths-qbtest.js", title="Topic 4 Statistics — box-and-whisker diagrams", label="test",
+               intro="topic 4 Statistics and probability), as chosen in the class QuestionBank test. Some of them "
+                     "come from former courses (Mathematics SL, Mathematical studies SL)"),
     "t2": dict(file="maths-t2.js", title="2.1–2.5 Functions", label="2.1–2.5",
                intro="topic 2 Functions) and cover subtopics 2.1 to 2.5. Some of them come from former courses "
                      "(Mathematics SL and HL, Mathematical studies SL)"),
@@ -78,6 +81,15 @@ PAPERS = {
                                      "definition of independence (4.11), left out"),
            ("22M.2.SL.TZ2.4", None, "4.6 independent events, combined events")],
         B=[],
+    ),
+    # le « QuestionBank Test » de la classe (scripts/build_qbtest.py), mis en page tel quel
+    "qb-p1": dict(
+        data="qb", paper=1, set=1, code="W4SS–MAA–QB–P1–01", html="w4ss-maa-qbtest", minutes=30,
+        A=[("19M.1.SL.TZ2.T_6", None, "4.2 comparing box-and-whisker diagrams"),
+           ("18M.1.SL.TZ1.T_6", None, "4.2 box-and-whisker diagram, grouped data"),
+           ("19N.1.SL.TZ0.T_15", None, "4.2, 4.3 box-and-whisker diagram, median, quartiles")],
+        B=[("20N.1.SL.TZ0.S_8", None, "4.2 box-and-whisker plot, cumulative frequency · 4.3 standard deviation · "
+            "4.6 conditional probability")],
     ),
     "t2-p1": dict(
         data="t2", paper=1, set=1, code="W4SS–MAA–T2–P1–01", html="w4ss-maa-t2-p1", minutes=30,
