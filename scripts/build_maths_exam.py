@@ -37,6 +37,9 @@ TOPICS = {
     "qb": dict(file="maths-qbtest.js", title="Topic 4 Statistics — box-and-whisker diagrams", label="test",
                intro="topic 4 Statistics and probability), as chosen in the class QuestionBank test. Some of them "
                      "come from former courses (Mathematics SL, Mathematical studies SL)"),
+    "qb2": dict(file="maths-qbtest2.js", title="Topic 4 Statistics — cumulative frequency", label="test 2",
+                intro="topic 4 Statistics and probability), as chosen in the class QuestionBank test 2. Some of them "
+                      "come from former courses (Mathematics SL, Mathematical studies SL)"),
     "t2": dict(file="maths-t2.js", title="2.1–2.5 Functions", label="2.1–2.5",
                intro="topic 2 Functions) and cover subtopics 2.1 to 2.5. Some of them come from former courses "
                      "(Mathematics SL and HL, Mathematical studies SL)"),
@@ -46,7 +49,7 @@ LEGACY = {"S_": "former Mathematics SL course", "T_": "former Mathematical studi
 
 # (référence, parties retenues ou None pour toutes, sous-thèmes[, options]). Aucune question ne sert dans deux
 # sujets. Les sujets du jeu 2 (topic 4) et ceux du topic 2 n'ont pas de section B.
-# Options : relabel = nouvelle numérotation des parties ; gdc = question de Paper 1 de Mathematical studies
+# Options : relabel = nouvelle numérotation des parties ; img_scale = taille des images (section A : 0.8, B : 1) ; gdc = question de Paper 1 de Mathematical studies
 # (calculatrice autorisée) placée dans un Paper 2.
 PAPERS = {
     "p1": dict(
@@ -95,6 +98,15 @@ PAPERS = {
         B=[("20N.1.SL.TZ0.S_8", None, "4.2 box-and-whisker plot, cumulative frequency · 4.3 standard deviation · "
             "4.6 conditional probability"),
            ("21N.1.SL.TZ0.9", None, "4.2 cumulative frequency graph · 4.3 mean of grouped data")],
+    ),
+    # le « QuestionBank Test » 2 de la classe ; deux questions sont communes avec le test 1
+    "qb2-p1": dict(
+        data="qb2", paper=1, set=2, code="W4SS–MAA–QB–P1–02", html="w4ss-maa-qbtest-2", minutes=20, shared=True,
+        A=[("17M.1.SL.TZ2.T_6", None, "4.2 cumulative frequency graph, median"),
+           ("17M.1.SL.TZ2.S_8", None, "4.2 cumulative frequency curve — parts (a)(ii) and (b)(i) of the original, "
+            "relabelled (a) and (b): the other parts are not in the test", {"relabel": {"a.ii": "a", "b.i": "b"}}),
+           ("EXN.1.SL.TZ0.4", None, "4.2 cumulative frequency curve, quartiles, box-and-whisker diagram")],
+        B=[("21N.1.SL.TZ0.9", None, "4.2 cumulative frequency graph · 4.3 mean of grouped data", {"img_scale": 0.85})],
     ),
     "t2-p1": dict(
         data="t2", paper=1, set=1, code="W4SS–MAA–T2–P1–01", html="w4ss-maa-t2-p1", minutes=30,
@@ -222,12 +234,12 @@ def scale_images(h, factor):
     return re.sub(r'<img (?=src="data:image/(\w+);base64,([^"]{32}))', repl, h)
 
 
-def question(n, e, labels, kind):
+def question(n, e, labels, kind, img_scale=None):
     """Blocs HTML d'une question, lignes du markscheme et total des points.
 
     Section A (kind « p2 ») : images à 80 % pour garder la question et son cadre ensemble.
     """
-    ctx_html = {c["id"]: scale_images(clean(c["html"]), 0.8 if kind == "p2" else 1) for c in e["contexts"]}
+    ctx_html = {c["id"]: scale_images(clean(c["html"]), img_scale or (0.8 if kind == "p2" else 1)) for c in e["contexts"]}
     parts = [p for p in e["parts"] if labels is None or p["label"] in labels]
     missing = set(labels or []) - {p["label"] for p in parts}
     assert not missing, f"{e['id']} : parties absentes {missing}"
@@ -316,7 +328,7 @@ def build(name, datasets):
             assert e["paper"] == num or opts.get("gdc"), f"{qid} n'est pas une question de Paper {num}"
             chosen = [p for p in e["parts"] if labels is None or p["label"] in labels]
             assert all(p["ms"] and p["marks"] for p in chosen), f"{qid} : barème ou corrigé manquant"
-            blocks, ms, marks = question(n, e, labels, kind)
+            blocks, ms, marks = question(n, e, labels, kind, opts.get("img_scale"))
             sec_blocks[section] += blocks
             ms_rows[section] += ms
             total += marks
@@ -406,6 +418,8 @@ def build(name, datasets):
 def check_no_overlap():
     seen = {}
     for name, paper in PAPERS.items():
+        if paper.get("shared"):   # test de la classe : il reprend des questions d'un autre test
+            continue
         for qid in (spec[0] for spec in paper["A"] + paper["B"]):
             if qid in seen:
                 sys.exit(f"{qid} est à la fois dans {seen[qid]} et dans {name}")

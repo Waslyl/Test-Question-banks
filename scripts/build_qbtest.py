@@ -3,7 +3,11 @@
 en data/maths-qbtest.js, pour en faire un sujet W4ss avec build_maths_exam.py (sujet qb-p1).
 
 Usage :
-    python3 scripts/build_qbtest.py QuestionBank_Test.pdf
+    python3 scripts/build_qbtest.py QuestionBank_Test.pdf      # test 1 (16 images) -> data/maths-qbtest.js
+    python3 scripts/build_qbtest.py QuestionBank_Test_2.pdf    # test 2 (7 images)  -> data/maths-qbtest2.js
+
+Le test 2 reprend deux questions du test 1 (17M.1.SL.TZ2.T_6 et 21N.1.SL.TZ0.9) : elles sont copiées de
+data/maths-qbtest.js, qu'il faut donc avoir produit avant.
 
 Le texte des énoncés et des corrigés est recopié du PDF et de son corrigé (QuestionBank_Test_answers.pdf) ;
 les images (boîtes à moustaches, tableau) sont extraites du PDF avec pdfimages. La question 20N.1.SL.TZ0.S_8
@@ -40,13 +44,66 @@ def exercise(qid, session, date, tz, legacy, contexts, parts):
                        marks=sum(x["marks"] for x in parts), contexts=contexts, parts=parts, notes=[])
 
 
-def main(pdf):
+def images(pdf):
     with tempfile.TemporaryDirectory() as tmp:
         subprocess.run(["pdfimages", "-png", pdf, os.path.join(tmp, "img")], check=True)
         names = sorted(f for f in os.listdir(tmp) if f.endswith(".png"))
-        assert len(names) == 16, names   # 14 images d'énoncé, 2 de corrigé (courbe et boîte à moustaches)
-        img = [f'<p><img src="data:image/png;base64,{base64.b64encode(open(os.path.join(tmp, n), "rb").read()).decode()}"></p>'
-               for n in names]
+        return [f'<p><img src="data:image/png;base64,{base64.b64encode(open(os.path.join(tmp, n), "rb").read()).decode()}"></p>'
+                for n in names]
+
+
+def write(name, var, exercises):
+    out = OrderedDict(subject="DP Mathematics: Analysis and Approaches", level="SL",
+                      topic=OrderedDict(number=4, title="Statistics and probability"), exercises=exercises)
+    target = os.path.join(ROOT, "data", name)
+    with open(target, "w", encoding="utf-8") as f:
+        f.write(f"window.{var} = ")
+        json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
+        f.write(";\n")
+    print(f"data/{name} : {len(exercises)} questions, {sum(e['marks'] for e in exercises)} points")
+
+
+def test2(img):
+    """Test 2 : 17M.1.SL.TZ2.T_6, 17M.1.SL.TZ2.S_8 (a)(ii) et (b)(i), 21N.1.SL.TZ0.9, EXN.1.SL.TZ0.4."""
+    test1 = {e["id"]: e for e in load_js(os.path.join(ROOT, "data", "maths-qbtest.js"))["exercises"]}
+    exercises = [
+        test1["17M.1.SL.TZ2.T_6"],
+        exercise("17M.1.SL.TZ2.S_8", "17M", "May 2017", "TZ2", "S_", [
+            OrderedDict(id="c1", html="<p>A city hired 160 employees to work at a festival. The following cumulative "
+                                      "frequency curve shows the number of hours employees worked during the festival."
+                                      "</p>" + img[1] + "<p>The city paid each of the employees £8 per hour for the "
+                                      "first 40 hours worked, and £10 per hour for each hour they worked after the first "
+                                      "40 hours.</p>")], [
+            part("a.ii", 1, ["c1"], "<p>Write down the number of employees who worked 50 hours or less.</p>",
+                 p("130 employees", "A1 N1")),
+            part("b.i", 1, ["c1"], "<p>Find the amount of money an employee earned for working 40 hours.</p>",
+                 p("£320", "A1 N1"))]),
+        exercise("EXN.1.SL.TZ0.4", "EXN", "November Example questions", "TZ0", "", [
+            OrderedDict(id="c1", html="<p>A food scientist measures the weights of 760 potatoes taken from a single field "
+                                      "and the distribution of the weights is shown by the cumulative frequency curve "
+                                      "below.</p>" + img[4]),
+            OrderedDict(id="c2", html="<p>The weight of the smallest potato in the sample is 20 grams and the weight of "
+                                      "the largest is 400 grams.</p>")], [
+            part("a", 2, ["c1"], "<p>Find the number of potatoes in the sample with a weight of more than 200 grams.</p>",
+                 p("760 − 420 = 340 (g)", "(M1)A1")),
+            part("b.i", 1, ["c1"], "<p>Find the median weight.</p>", p("Median = 190 (g)", "A1")),
+            part("b.ii", 1, ["c1"], "<p>Find the lower quartile.</p>", p("Lower quartile = 135 − 140 (g)", "A1")),
+            part("b.iii", 1, ["c1"], "<p>Find the upper quartile.</p>", p("Upper quartile = 242 − 247 (g)", "A1")),
+            part("c", 2, ["c1", "c2"], "<p>Use the scale shown below to draw a box and whisker diagram showing the "
+                                       "distribution of the weights of the potatoes. You may assume there are no "
+                                       "outliers.</p>" + img[5],
+                 img[6] + p("", "M1A1") + note("The M1 is for a box and whisker plot and the A1 for all 5 statistics "
+                                               "in the right places."))]),
+        test1["21N.1.SL.TZ0.9"],
+    ]
+    write("maths-qbtest2.js", "QB_MATHS_QBTEST2", exercises)
+
+
+def main(pdf):
+    img = images(pdf)
+    if len(img) == 7:
+        return test2(img)
+    assert len(img) == 16, len(img)   # 14 images d'énoncé, 2 de corrigé (courbe et boîte à moustaches)
 
     x, k = "<i>x</i>", "<i>k</i>"
     exercises = [
@@ -159,14 +216,7 @@ def main(pdf):
             part("c.ii", 2, ["c1"], "<p>Find the minimum score needed to obtain a grade 5.</p>",
                  p("120 − their part (c)(i) seen (e.g. 92 indicated on graph)", "(M1)") + p("84", "A1"))]),
         section="B"))
-    out = OrderedDict(subject="DP Mathematics: Analysis and Approaches", level="SL",
-                      topic=OrderedDict(number=4, title="Statistics and probability"), exercises=exercises)
-    target = os.path.join(ROOT, "data", "maths-qbtest.js")
-    with open(target, "w", encoding="utf-8") as f:
-        f.write("window.QB_MATHS_QBTEST = ")
-        json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
-        f.write(";\n")
-    print(f"data/maths-qbtest.js : {len(exercises)} questions, {sum(e['marks'] for e in exercises)} points")
+    write("maths-qbtest.js", "QB_MATHS_QBTEST", exercises)
 
 
 if __name__ == "__main__":
