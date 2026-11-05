@@ -71,7 +71,7 @@ node scripts/print_pdf.cjs exams/w4ss-maa-t2-p1.html exams/W4ss_Academy_Maths_AA
 
 ### Test de la classe (QuestionBank Test)
 
-Le test exporté de la Questionbank (`QuestionBank_Test.pdf` et son corrigé) est mis en page comme les autres sujets : 3 questions courtes en section A, une question longue en section B, 24 points, Paper 1. Référence W4SS–MAA–QB–P1–01, fichiers `exams/W4ss_Academy_Maths_QuestionBank_Test.pdf` et `_Markscheme.pdf`.
+Le test exporté de la Questionbank (`QuestionBank_Test.pdf` et son corrigé) est mis en page comme les autres sujets : 6 questions courtes en section A, 2 questions longues en section B, 44 points, Paper 1 de 50 minutes. Référence W4SS–MAA–QB–P1–01, fichiers `exams/W4ss_Academy_Maths_QuestionBank_Test.pdf` et `_Markscheme.pdf`.
 
 ```bash
 python3 scripts/build_qbtest.py QuestionBank_Test.pdf     # produit data/maths-qbtest.js

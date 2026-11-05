@@ -84,12 +84,17 @@ PAPERS = {
     ),
     # le « QuestionBank Test » de la classe (scripts/build_qbtest.py), mis en page tel quel
     "qb-p1": dict(
-        data="qb", paper=1, set=1, code="W4SS–MAA–QB–P1–01", html="w4ss-maa-qbtest", minutes=30,
+        data="qb", paper=1, set=1, code="W4SS–MAA–QB–P1–01", html="w4ss-maa-qbtest", minutes=50,
         A=[("19M.1.SL.TZ2.T_6", None, "4.2 comparing box-and-whisker diagrams"),
            ("18M.1.SL.TZ1.T_6", None, "4.2 box-and-whisker diagram, grouped data"),
-           ("19N.1.SL.TZ0.T_15", None, "4.2, 4.3 box-and-whisker diagram, median, quartiles")],
+           ("19N.1.SL.TZ0.T_15", None, "4.2, 4.3 box-and-whisker diagram, median, quartiles"),
+           ("17M.1.SL.TZ2.T_6", None, "4.2 cumulative frequency graph, median"),
+           ("19M.1.SL.TZ2.T_12", None, "4.2 cumulative frequency table and curve"),
+           ("17N.1.SL.TZ0.T_1", None, "4.2, 4.3 median, box-and-whisker diagram — part (a)(ii) of the original, "
+            "relabelled (a): part (a)(i) is not in the test", {"relabel": {"a.ii": "a"}})],
         B=[("20N.1.SL.TZ0.S_8", None, "4.2 box-and-whisker plot, cumulative frequency · 4.3 standard deviation · "
-            "4.6 conditional probability")],
+            "4.6 conditional probability"),
+           ("21N.1.SL.TZ0.9", None, "4.2 cumulative frequency graph · 4.3 mean of grouped data")],
     ),
     "t2-p1": dict(
         data="t2", paper=1, set=1, code="W4SS–MAA–T2–P1–01", html="w4ss-maa-t2-p1", minutes=30,
