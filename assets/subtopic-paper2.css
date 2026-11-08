@@ -18,3 +18,8 @@
 .q-note, .missing-note { font-size: 13px; color: #8a5a00; background: #fdf3e1; border-radius: 6px; padding: 6px 10px; }
 .q-note { margin: 12px 18px 0; }
 .missing-note { margin-top: 6px; }
+/* introductions rédigées par W4ss Academy (B.4) et figures */
+.w4ss-note { font-size: 13px; color: #8a5a00; background: #fdf3e1; border-radius: 6px; padding: 6px 10px; }
+.part-context svg.graph, .part-context svg.mgraph { display: block; max-width: min(100%, 520px); height: auto; margin: 8px auto; }
+.part-context table.data-table { border-collapse: collapse; margin: 8px auto; }
+.part-context table.data-table th, .part-context table.data-table td { border: 1px solid #999; padding: 3px 7px; text-align: center; }

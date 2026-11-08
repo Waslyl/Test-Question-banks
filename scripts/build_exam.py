@@ -522,7 +522,8 @@ def page_p2(ctx, p2_blocks, sources, total, duration, extra_sources=""):
     return shell(ctx, "W4ss Academy — Physics B.3 Paper 2", inner)
 
 
-def page_test(ctx, p1a_blocks, p2_blocks, sources):
+def page_test(ctx, p1a_blocks, p2_blocks, sources, marks=(10, 10), intro=SOURCES_INTRO,
+              title="W4ss Academy — Physics B.3 practice test"):
     instructions = [
         "Write your name in the boxes above.",
         "Do not open this examination paper until instructed to do so.",
@@ -531,9 +532,9 @@ def page_test(ctx, p1a_blocks, p2_blocks, sources):
         "<b>Paper 2:</b> answers must be written within the answer boxes provided.",
         "A calculator is required for this paper.",
         "A clean copy of the <b>physics data booklet</b> is required for this paper.",
-        "The maximum mark for paper 1A is <b>[10 marks]</b>.",
-        "The maximum mark for paper 2 is <b>[10 marks]</b>.",
-        "The maximum mark for this examination paper is <b>[20 marks]</b>.",
+        f"The maximum mark for paper 1A is <b>[{marks[0]} marks]</b>.",
+        f"The maximum mark for paper 2 is <b>[{marks[1]} marks]</b>.",
+        f"The maximum mark for this examination paper is <b>[{sum(marks)} marks]</b>.",
     ]
     p1a_blocks = list(p1a_blocks)
     p1a_blocks[0] = p1a_blocks[0].replace('data-kind="p1a"', 'data-kind="p1a" data-newpage', 1).replace(
@@ -551,13 +552,14 @@ def page_test(ctx, p1a_blocks, p2_blocks, sources):
 <table>{rows}</table>
 <p class="hint">Shade <b>one</b> circle per question. If you change your answer, cross out the wrong circle clearly.</p>
 </div></section>"""
-    src = sources_page(sources)
+    src = sources_page(sources, intro=intro)
     inner = cover(ctx, "Paper 1A and Paper 2", instructions, "30 minutes [Paper 1A and Paper 2]") + \
         "".join(p1a_blocks) + sheet + "".join(p2_blocks) + src
-    return shell(ctx, "W4ss Academy — Physics B.3 practice test", inner)
+    return shell(ctx, title, inner)
 
 
-def page_markscheme(ctx, key_rows, ms_p2, instructions=None, duration="Paper 1A and Paper 2", total=20):
+def page_markscheme(ctx, key_rows, ms_p2, instructions=None, duration="Paper 1A and Paper 2", total=20,
+                    title="W4ss Academy — Physics B.3 markscheme"):
     def table(head, row, first, newpage=False):
         h = f"<tr>{''.join(f'<th>{c}</th>' for c in head)}</tr>" if first else ""
         return f'<div class="blk ms-item" data-kind="ms"{" data-newpage" if newpage else ""}><table>{h}{row}</table></div>'
@@ -578,7 +580,7 @@ def page_markscheme(ctx, key_rows, ms_p2, instructions=None, duration="Paper 1A 
         f"Total: <b>[{total} marks]</b>.",
     ]
     inner = cover(ctx, "Markscheme", instructions, duration) + "".join(blocks)
-    return shell(ctx, "W4ss Academy — Physics B.3 markscheme", inner)
+    return shell(ctx, title, inner)
 
 
 def check_no_overlap():

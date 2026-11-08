@@ -117,6 +117,7 @@ Le script produit `data/paper1a.js` et `data/paper2.js`. Seules les questions de
 |---|---|---|
 | B.1 Thermal energy transfers | `b1-paper1a.html` (37 QCM vérifiés sur 44 listés) | `b1-paper2.html` (20 questions) |
 | B.3 Gas laws | `b3-paper1a.html` (32 QCM) | `b3-paper2.html` (10 questions) |
+| B.4 Thermodynamics | `b4-paper1a.html` (10 QCM, avec méthodes) | `b4-paper2.html` (10 questions) |
 
 Dans les pages Paper 2, chaque question est complète, avec toutes ses parties. Les parties du sous-thème sont mises en évidence et chaque partie a son propre markscheme.
 
@@ -175,6 +176,24 @@ Les introductions, graphiques et tableaux sont écrits dans `scripts/written_ste
 python3 scripts/build_p2_paper.py            # ou : python3 scripts/build_p2_paper.py 2
 node scripts/print_pdf.cjs exams/w4ss-b3-paper2-2.html exams/W4ss_Academy_Physics_B3_Paper2_2.pdf
 node scripts/print_pdf.cjs exams/w4ss-b3-paper2-2-markscheme.html exams/W4ss_Academy_Physics_B3_Paper2_2_Markscheme.pdf
+```
+
+## B.4 Thermodynamics : pages et sujets W4ss
+
+L'export `IB_Physics_B4_Thermodynamics_questions.json` liste les 46 questions de B.4, sans réponse, sans markscheme et sans introduction des questions Paper 2. `scripts/import_b4.py` produit `data/b4.js` en reprenant réponses et markschemes de `data/paper1a.js` et `data/paper2.js`, seulement quand le texte de la question y est retrouvé (dans ces exports, 19M.2.HL.TZ2.10 et 20N.2.HL.TZ0.9 désignent par exemple des questions d'induction). Les introductions manquantes de 7 questions sont rédigées dans `scripts/b4_content.py` à partir des données du markscheme (calculs de vérification en tête du fichier), avec les méthodes des 10 QCM. Pour 19M.2.HL.TZ2.10 et 20N.2.HL.TZ0.9, la page n'affiche que les parties B.4, avec un avertissement, et 4 parties n'ont pas de markscheme.
+
+Trois sujets de 30 minutes (Paper 1A + Paper 2, 20 points), sans QCM ni partie en commun :
+
+| Sujet | Référence | Paper 1A | Paper 2 | Fichiers (`exams/`) |
+|---|---|---|---|---|
+| 1 | W4SS–PHY–B4–01 | 4 QCM | 19M.2.HL.TZ1.7 (cycle de Carnot), EXE.2.HL.TZ0.11 (micro-états d'un gaz) | `W4ss_Academy_Physics_B4_Test.pdf` + `_Markscheme` |
+| 2 | W4SS–PHY–B4–02 | 3 QCM | 23M.2.SL.TZ1.9 (cycle isotherme, isochore, adiabatique), EXE.2.HL.TZ0.14 (10 pièces) | `..._B4_Test_2.pdf` + `_Markscheme_2` |
+| 3 | W4SS–PHY–B4–03 | 3 QCM | 23M.2.HL.TZ2.7 (cycle à 53.2 mol), EXE.2.HL.TZ0.12 (b) à (d) (6 particules) | `..._B4_Test_3.pdf` + `_Markscheme_3` |
+
+```bash
+python3 scripts/import_b4.py IB_Physics_B4_Thermodynamics_questions.json
+python3 scripts/build_b4_exam.py
+node scripts/print_pdf.cjs exams/w4ss-b4-test-2.html exams/W4ss_Academy_Physics_B4_Test_2.pdf
 ```
 
 ## Après chaque modification
