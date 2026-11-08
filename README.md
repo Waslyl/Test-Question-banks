@@ -78,6 +78,8 @@ python3 scripts/build_qbtest.py QuestionBank_Test.pdf     # produit data/maths-q
 python3 scripts/build_maths_exam.py qb-p1
 python3 scripts/build_qbtest.py QuestionBank_Test_2.pdf   # test 2 (4 questions, 19 points) : data/maths-qbtest2.js
 python3 scripts/build_maths_exam.py qb2-p1
+python3 scripts/build_qbtest.py --test3 courbe.png grille.png corrige.png   # test 3 (16 points), envoyé en captures d'écran
+python3 scripts/build_maths_exam.py qb3-p1
 node scripts/print_pdf.cjs exams/w4ss-maa-qbtest.html exams/W4ss_Academy_Maths_QuestionBank_Test.pdf
 ```
 

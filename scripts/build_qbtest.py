@@ -9,6 +9,12 @@ Usage :
 Le test 2 reprend deux questions du test 1 (17M.1.SL.TZ2.T_6 et 21N.1.SL.TZ0.9) : elles sont copiées de
 data/maths-qbtest.js, qu'il faut donc avoir produit avant.
 
+    python3 scripts/build_qbtest.py --test3 courbe.png grille.png corrige.png   # test 3 -> data/maths-qbtest3.js
+
+Le test 3 a été envoyé en captures d'écran de téléphone : seules les images de 16N.1.SL.TZ0.T_2 (courbe des
+fréquences cumulées, grille vierge, boîte à moustaches du corrigé) sont recadrées dans ces captures et
+passées en argument ; ses trois autres questions sont reprises des tests 1 et 2.
+
 Le texte des énoncés et des corrigés est recopié du PDF et de son corrigé (QuestionBank_Test_answers.pdf) ;
 les images (boîtes à moustaches, tableau) sont extraites du PDF avec pdfimages. La question 20N.1.SL.TZ0.S_8
 existe déjà dans data/maths-t4.js : elle en est reprise telle quelle, avec son markscheme.
@@ -97,6 +103,35 @@ def test2(img):
         test1["21N.1.SL.TZ0.9"],
     ]
     write("maths-qbtest2.js", "QB_MATHS_QBTEST2", exercises)
+
+
+def png(path):
+    return f'<p><img src="data:image/png;base64,{base64.b64encode(open(path, "rb").read()).decode()}"></p>'
+
+
+def test3(curve, grid, answer):
+    """Test 3 : 17N.1.SL.TZ0.T_1, 16N.1.SL.TZ0.T_2, 17M.1.SL.TZ2.S_8, EXN.1.SL.TZ0.4."""
+    test1 = {e["id"]: e for e in load_js(os.path.join(ROOT, "data", "maths-qbtest.js"))["exercises"]}
+    test2 = {e["id"]: e for e in load_js(os.path.join(ROOT, "data", "maths-qbtest2.js"))["exercises"]}
+    exercises = [
+        test1["17N.1.SL.TZ0.T_1"],
+        exercise("16N.1.SL.TZ0.T_2", "16N", "November 2016", "TZ0", "T_", [
+            OrderedDict(id="c1", html="<p>A sample of 120 oranges was tested for Vitamin C content. The cumulative "
+                                      "frequency curve below represents the Vitamin C content, in milligrams, of these "
+                                      "oranges.</p>" + png(curve) + "<p>The minimum level of Vitamin C content of an "
+                                      "orange in the sample was 30.1 milligrams. The maximum level of Vitamin C content "
+                                      "of an orange in the sample was 35.0 milligrams.</p>")], [
+            part("", 3, ["c1"], "<p>Draw a box-and-whisker diagram on the grid below to represent the Vitamin C "
+                                "content, in milligrams, for this sample.</p>" + png(grid),
+                 png(answer) + p("", "(A1)(ft)(A1)(ft)(A1)")
+                 + note("Award (A1)(ft) for correct median, (A1)(ft) for correct quartiles and box, (A1) for correct "
+                        "end points of whiskers and straight whiskers. Award at most (A1)(A1)(A0) if a horizontal line "
+                        "goes right through the box or if the whiskers are not well aligned with the midpoint of the "
+                        "box. Follow through from part (a)."))]),
+        test2["17M.1.SL.TZ2.S_8"],
+        test2["EXN.1.SL.TZ0.4"],
+    ]
+    write("maths-qbtest3.js", "QB_MATHS_QBTEST3", exercises)
 
 
 def main(pdf):
@@ -220,6 +255,9 @@ def main(pdf):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) == 5 and sys.argv[1] == "--test3":
+        test3(*sys.argv[2:])
+    elif len(sys.argv) == 2:
+        main(sys.argv[1])
+    else:
         sys.exit(__doc__)
-    main(sys.argv[1])

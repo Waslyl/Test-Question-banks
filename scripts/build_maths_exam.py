@@ -40,6 +40,9 @@ TOPICS = {
     "qb2": dict(file="maths-qbtest2.js", title="Topic 4 Statistics — cumulative frequency", label="test 2",
                 intro="topic 4 Statistics and probability), as chosen in the class QuestionBank test 2. Some of them "
                       "come from former courses (Mathematics SL, Mathematical studies SL)"),
+    "qb3": dict(file="maths-qbtest3.js", title="Topic 4 Statistics — box-and-whisker diagrams", label="test 3",
+                intro="topic 4 Statistics and probability), as chosen in the class QuestionBank test 3. Some of them "
+                      "come from former courses (Mathematics SL, Mathematical studies SL)"),
     "t2": dict(file="maths-t2.js", title="2.1–2.5 Functions", label="2.1–2.5",
                intro="topic 2 Functions) and cover subtopics 2.1 to 2.5. Some of them come from former courses "
                      "(Mathematics SL and HL, Mathematical studies SL)"),
@@ -107,6 +110,18 @@ PAPERS = {
             "relabelled (a) and (b): the other parts are not in the test", {"relabel": {"a.ii": "a", "b.i": "b"}}),
            ("EXN.1.SL.TZ0.4", None, "4.2 cumulative frequency curve, quartiles, box-and-whisker diagram")],
         B=[("21N.1.SL.TZ0.9", None, "4.2 cumulative frequency graph · 4.3 mean of grouped data", {"img_scale": 0.85})],
+    ),
+    # le « QuestionBank Test » 3 de la classe (envoyé en captures d'écran) ; questions communes avec les tests 1 et 2
+    "qb3-p1": dict(
+        data="qb3", paper=1, set=3, code="W4SS–MAA–QB–P1–03", html="w4ss-maa-qbtest-3", minutes=20, shared=True,
+        A=[("17N.1.SL.TZ0.T_1", None, "4.2, 4.3 median, box-and-whisker diagram — part (a)(ii) of the original, "
+            "relabelled (a): part (a)(i) is not in the test", {"relabel": {"a.ii": "a"}}),
+           ("16N.1.SL.TZ0.T_2", None, "4.2 cumulative frequency curve, box-and-whisker diagram — the part of the "
+            "original that is in the test (figures taken from screenshots)"),
+           ("17M.1.SL.TZ2.S_8", None, "4.2 cumulative frequency curve — parts (a)(ii) and (b)(i) of the original, "
+            "relabelled (a) and (b)", {"relabel": {"a.ii": "a", "b.i": "b"}}),
+           ("EXN.1.SL.TZ0.4", None, "4.2 cumulative frequency curve, quartiles, box-and-whisker diagram")],
+        B=[],
     ),
     "t2-p1": dict(
         data="t2", paper=1, set=1, code="W4SS–MAA–T2–P1–01", html="w4ss-maa-t2-p1", minutes=30,
