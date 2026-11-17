@@ -43,12 +43,18 @@ TOPICS = {
     "qb3": dict(file="maths-qbtest3.js", title="Topic 4 Statistics — box-and-whisker diagrams", label="test 3",
                 intro="topic 4 Statistics and probability), as chosen in the class QuestionBank test 3. Some of them "
                       "come from former courses (Mathematics SL, Mathematical studies SL)"),
+    "de": dict(file="maths-de.js", title="First order differential equations", label="differential equations",
+               intro="AHL 5.18 differential equations), as chosen in the class QuestionBank test. Only the parts "
+                     "where a differential equation is solved (Euler's method, separation of variables, substitution "
+                     "y = vx, integrating factor) are kept. Some questions come from former courses (Mathematics HL "
+                     "calculus option, Further mathematics HL)"),
     "t2": dict(file="maths-t2.js", title="2.1–2.5 Functions", label="2.1–2.5",
                intro="topic 2 Functions) and cover subtopics 2.1 to 2.5. Some of them come from former courses "
                      "(Mathematics SL and HL, Mathematical studies SL)"),
 }
 LEGACY = {"S_": "former Mathematics SL course", "T_": "former Mathematical studies SL course",
-          "H_": "former Mathematics HL course"}
+          "H_": "former Mathematics HL course", "HCA_": "former Mathematics HL course, calculus option",
+          "F_": "former Further mathematics HL course"}
 
 # (référence, parties retenues ou None pour toutes, sous-thèmes[, options]). Aucune question ne sert dans deux
 # sujets. Les sujets du jeu 2 (topic 4) et ceux du topic 2 n'ont pas de section B.
@@ -112,6 +118,36 @@ PAPERS = {
         B=[("21N.1.SL.TZ0.9", None, "4.2 cumulative frequency graph · 4.3 mean of grouped data", {"img_scale": 0.85})],
     ),
     # le « QuestionBank Test » 3 de la classe (envoyé en captures d'écran) ; questions communes avec les tests 1 et 2
+    # test « first order differential equations » (Maths AA HL, scripts/build_de_test.py) : un sujet blanc de
+    # 40 minutes (les quatre méthodes) et un livret d'entraînement avec les 12 questions classées par méthode
+    "de-mock": dict(
+        data="de", paper=2, set=1, level="HL", code="W4SS–MAA–DE–P2–01", html="w4ss-maa-de-mock", minutes=40,
+        shared=True,
+        A=[("18N.3.AHL.TZ0.HCA_4", None, "Euler's method · linear equation (integrating factor or y = vx)")],
+        B=[("21M.2.AHL.TZ1.12", None, "partial fractions, separation of variables — parts (d) and (e) left out"),
+           ("17M.3.AHL.TZ0.HCA_4", None, "homogeneous equation, substitution y = vx")],
+    ),
+    "de-practice": dict(
+        data="de", paper=2, set=2, level="HL", code="W4SS–MAA–DE–P2–02", html="w4ss-maa-de-practice", minutes=150,
+        shared=True, max_lines=16,
+        A=[("21M.2.AHL.TZ1.12", None, "separation of variables — parts (d) and (e) left out",
+            {"heading": "Separation of variables"}),
+           ("16N.3.AHL.TZ0.HCA_1", None, "integrating factor", {"heading": "Integrating factor"}),
+           ("17N.3.AHL.TZ0.HCA_2", None, "integrating factor"),
+           ("18M.3.AHL.TZ0.HCA_5", None, "integrating factor — part (a) only"),
+           ("20N.3.AHL.TZ0.HCA_3", None, "integrating factor — part (b) only"),
+           ("17M.3.AHL.TZ0.HCA_4", None, "substitution y = vx", {"heading": "Homogeneous equations: substitution y = vx"}),
+           ("EXN.2.AHL.TZ0.12", None, "substitution y = vx — parts (c) and (d) left out"),
+           ("19M.3.AHL.TZ0.HCA_5", None, "substitution y = vx — part (a) only"),
+           ("20N.2.AHL.TZ0.F_9", None, "substitution y = vx — part (a) only"),
+           ("18N.3.AHL.TZ0.HCA_4", None, "Euler's method and exact solution — parts (c) and (d) left out",
+            {"heading": "Euler's method and exact solution"}),
+           ("19N.3.AHL.TZ0.HCA_4", None, "Euler's method, substitution y = vx — parts (b), (c)(iii) and (c)(iv) "
+            "left out, (c)(i) and (c)(ii) relabelled (b)(i) and (b)(ii)"),
+           ("22M.2.AHL.TZ1.12", None, "Euler's method, substitution y = vx — parts (c)(ii) and (c)(iii) left out, "
+            "(c)(i) relabelled (c)")],
+        B=[],
+    ),
     "qb3-p1": dict(
         data="qb3", paper=1, set=3, code="W4SS–MAA–QB–P1–03", html="w4ss-maa-qbtest-3", minutes=20, shared=True,
         A=[("17N.1.SL.TZ0.T_1", None, "4.2, 4.3 median, box-and-whisker diagram — part (a)(ii) of the original, "
@@ -184,6 +220,9 @@ MATHS_CSS = """
 .lined .answer-box { border: 0; padding: 0; }
 .ms-item h2.next { margin-top: 8mm; }
 .ms-item .ms-html img { max-width: 80mm; height: auto; display: block; margin: 1mm 0; }
+.ms-item td.crop { padding: 1mm; }
+.ms-item .ms-html img.ms-crop { max-width: 100%; width: 100%; margin: 0; }
+.method-title { font-weight: 700; font-size: 11.5pt; margin: 0 0 4mm; padding: 1.5mm 3mm; background: #eee; border-left: 3px solid #333; }
 svg.mgraph { display: block; margin: 2mm auto 3mm; max-width: 100%; height: auto; }
 .ms-item .ms-html svg.mgraph { margin: 1mm 0 2mm; }
 """
@@ -249,7 +288,7 @@ def scale_images(h, factor):
     return re.sub(r'<img (?=src="data:image/(\w+);base64,([^"]{32}))', repl, h)
 
 
-def question(n, e, labels, kind, img_scale=None):
+def question(n, e, labels, kind, img_scale=None, max_lines=None):
     """Blocs HTML d'une question, lignes du markscheme et total des points.
 
     Section A (kind « p2 ») : images à 80 % pour garder la question et son cadre ensemble.
@@ -293,7 +332,7 @@ def question(n, e, labels, kind, img_scale=None):
             ms.append((n, display_label(p["label"]), p["marks"], ms_clean(p["ms"])))
     if kind == "p2":   # section A : un cadre de réponse après la question (2 lignes par point)
         # des groupes de lignes : au moins 3 lignes en bas de page et 2 en haut de la suivante
-        lines = 2 * total
+        lines = min(2 * total, max_lines or 2 * total)
         groups = [3] + [1] * (lines - 5) + [2] if lines >= 5 else [lines]
         for j, count in enumerate(groups):
             cls = "blk bl" + (" first" if j == 0 else "") + (" last" if j == len(groups) - 1 else "")
@@ -343,7 +382,10 @@ def build(name, datasets):
             assert e["paper"] == num or opts.get("gdc"), f"{qid} n'est pas une question de Paper {num}"
             chosen = [p for p in e["parts"] if labels is None or p["label"] in labels]
             assert all(p["ms"] and p["marks"] for p in chosen), f"{qid} : barème ou corrigé manquant"
-            blocks, ms, marks = question(n, e, labels, kind, opts.get("img_scale"))
+            blocks, ms, marks = question(n, e, labels, kind, opts.get("img_scale"), paper.get("max_lines"))
+            if opts.get("heading"):   # titre de groupe (ex. méthode de résolution) avant la question
+                blocks[0] = blocks[0].replace('<div class="qn">', f'<div class="method-title">{opts["heading"]}</div>'
+                                              '<div class="qn">', 1)
             sec_blocks[section] += blocks
             ms_rows[section] += ms
             total += marks
@@ -356,11 +398,12 @@ def build(name, datasets):
             sources.append((f"Section {section} — question {n}", f"{qid}{old}{part_note} · {topics}"))
 
     a, b = sec_blocks["A"], sec_blocks["B"]
+    first = '<div class="method-title">' if '<div class="method-title">' in a[0] else '<div class="qn">'
     a[0] = a[0].replace('data-kind="p2"', 'data-kind="p2" data-newpage', 1).replace(
-        '<div class="qn">',
+        first,
         f'<p class="advice">{ADVICE[num]}</p><div class="sec-title">Section A</div>'
         '<p class="lead">Answer <strong>all</strong> questions. Answers must be written within the answer boxes '
-        'provided. Working may be continued below the lines, if necessary.</p><div class="qn">', 1)
+        f'provided. Working may be continued below the lines, if necessary.</p>{first}', 1)
     if b:
         b[0] = b[0].replace('data-kind="secb"', 'data-kind="secb" data-newpage', 1).replace(
             '<div class="qn">',
@@ -368,8 +411,10 @@ def build(name, datasets):
             'answer pages at the end of this paper. Please start each question on a new page.</p><div class="qn">', 1)
 
     today = date.today()
-    ctx = dict(code=paper["code"], number=paper["set"], series="practice set", title=topic["title"], site=SITE, level="Standard level",
-               subject=SUBJECT, brand=BRAND.replace("DP Physics · 2025 syllabus", "DP Mathematics AA · SL"),
+    hl = paper.get("level") == "HL"
+    ctx = dict(code=paper["code"], number=paper["set"], series="practice set", title=topic["title"], site=SITE,
+               level="Higher level" if hl else "Standard level", subject=SUBJECT,
+               brand=BRAND.replace("DP Physics · 2025 syllabus", f"DP Mathematics AA · {'HL' if hl else 'SL'}"),
                date=f"{today.day} {today.strftime('%B %Y')}", year=today.year)
     calculator = ("You are <b>not</b> permitted access to any calculator for this paper." if num == 1
                   else "A graphic display calculator is required for this paper.")
@@ -387,7 +432,7 @@ def build(name, datasets):
         f"The maximum mark for this examination paper is <b>[{total} marks]</b>.",
     ]
     intro = ("This practice paper was put together by W4ss Academy for internal class use. The questions are taken "
-             f"from the IB DP Mathematics: analysis and approaches Questionbank (standard level, {topic['intro']}. "
+             f"from the IB DP Mathematics: analysis and approaches Questionbank ({'higher' if hl else 'standard'} level, {topic['intro']}. "
              "They remain the property of the International Baccalaureate Organization and must not be published "
              "or sold.")
     test = (cover(ctx, f"Paper {num}", instructions, f"{paper['minutes']} minutes") + "".join(a) + "".join(b)
@@ -405,7 +450,16 @@ def build(name, datasets):
         ms_blocks.append(f'<div class="blk ms-item" data-kind="ms"{" data-newpage" if first else ""}>'
                          f'<h2{"" if first else " class=next"}>Section {section}</h2></div>')
         for i, (qn, lab, m, h) in enumerate(ms_rows[section]):
-            row = f'<tr><td class="qn-c">{qn}. {lab}</td><td class="c">[{m}]</td><td class="ms-html">{h}</td></tr>'
+            if 'class="ms-crop"' in h:   # extraits de page : sur toute la largeur, un bloc par extrait
+                imgs = re.findall(r'<img class="ms-crop"[^>]*>', h)
+                ms_blocks.append(table(["Question", "Marks", "Markscheme"],
+                                       f'<tr><td class="qn-c">{qn}. {lab}</td><td class="c">[{m}]</td><td></td></tr>'
+                                       f'<tr><td colspan="3" class="ms-html crop">{imgs[0]}</td></tr>', i == 0))
+                for img in imgs[1:]:
+                    ms_blocks.append(table([], f'<tr><td colspan="3" class="ms-html crop">{img}</td></tr>', False))
+                continue
+            else:
+                row = f'<tr><td class="qn-c">{qn}. {lab}</td><td class="c">[{m}]</td><td class="ms-html">{h}</td></tr>'
             ms_blocks.append(table(["Question", "Marks", "Markscheme"], row, i == 0))
     ms_instructions = [
         "This markscheme is for teachers and for self-assessment after the test.",
@@ -415,14 +469,19 @@ def build(name, datasets):
         "in the question, no mark for it. <b>FT</b>: follow through from an earlier error.",
         *(["The question export used for this paper has no official markscheme: these solutions were written by "
            "W4ss Academy in the IB style. Accept any correct equivalent method."] if topic is TOPICS["t2"] else []),
+        *(["The markscheme of each part is an extract of the QuestionBank export. In these extracts some brackets of "
+           "the formulas are missing (e.g. <i>x</i> tan ln <i>x</i> − 1 for <i>x</i>(tan(ln <i>x</i>) − 1)), and the "
+           "parts keep the order of the original question: use the question number and part in the table."]
+          if topic is TOPICS["de"] else []),
         f"Total: <b>[{total} marks]</b>.",
     ]
     markscheme = cover(ctx, f"Paper {num} — markscheme", ms_instructions, f"Paper {num}") + "".join(ms_blocks)
 
     os.makedirs(OUT, exist_ok=True)
     assert 'src="http' not in test, "image distante dans le sujet"
-    pages = {f"{paper['html']}.html": shell(ctx, f"W4ss Academy — Maths AA SL Paper {num} ({topic['label']})", test),
-             f"{paper['html']}-markscheme.html": shell(ctx, f"W4ss Academy — Maths AA SL Paper {num} markscheme", markscheme)}
+    lvl = "HL" if hl else "SL"
+    pages = {f"{paper['html']}.html": shell(ctx, f"W4ss Academy — Maths AA {lvl} Paper {num} ({topic['label']})", test),
+             f"{paper['html']}-markscheme.html": shell(ctx, f"W4ss Academy — Maths AA {lvl} Paper {num} markscheme", markscheme)}
     for fname, content in pages.items():
         with open(os.path.join(OUT, fname), "w", encoding="utf-8") as f:
             f.write(content)

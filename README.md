@@ -83,6 +83,22 @@ python3 scripts/build_maths_exam.py qb3-p1
 node scripts/print_pdf.cjs exams/w4ss-maa-qbtest.html exams/W4ss_Academy_Maths_QuestionBank_Test.pdf
 ```
 
+### Équations différentielles du premier ordre (AA HL, AHL 5.18)
+
+Les 12 questions du test « QuestionBank Test » sur les équations différentielles sont triées par méthode : variables séparables, facteur intégrant, équations homogènes (y = vx), méthode d'Euler. Seules les parties où l'on résout une équation sont gardées ; les isoclines, les tracés, les extrema et les pourcentages d'erreur sont retirés. Les énoncés sont récrits en LaTeX (`scripts/latex_mathml.py`). Les corrigés sont des extraits des pages du PDF : certaines parenthèses y manquent, comme dans la source.
+
+- Sujet blanc de 40 minutes, Paper 2, 37 points, avec les 4 méthodes : `exams/W4ss_Academy_Maths_AA_HL_DE_Mock.pdf` et `_Markscheme.pdf` (W4SS–MAA–DE–P2–01).
+- Livret d'entraînement avec les 12 questions, regroupées par méthode, 139 points : `exams/W4ss_Academy_Maths_AA_HL_DE_Practice.pdf` et `_Markscheme.pdf` (W4SS–MAA–DE–P2–02).
+
+```bash
+python3 -I scripts/build_de_test.py QuestionBank_Test.pdf   # produit data/maths-de.js
+python3 scripts/build_maths_exam.py de-mock de-practice
+for x in mock practice; do
+  node scripts/print_pdf.cjs exams/w4ss-maa-de-$x.html exams/W4ss_Academy_Maths_AA_HL_DE_${x^}.pdf
+  node scripts/print_pdf.cjs exams/w4ss-maa-de-$x-markscheme.html exams/W4ss_Academy_Maths_AA_HL_DE_${x^}_Markscheme.pdf
+done
+```
+
 ## Physics — fonctionnalités
 
 - Onglets **Paper 1A** / **Paper 2**
